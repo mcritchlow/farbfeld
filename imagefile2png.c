@@ -66,6 +66,7 @@ main(int argc, char *argv[])
 	png_row = malloc(png_row_len);
 	if (!png_row) {
 		fprintf(stderr, "failed to allocate row-buffer\n");
+		goto err;
 	}
 
 	for (i=0; i < height; ++i) {
