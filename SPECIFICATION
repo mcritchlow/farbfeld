@@ -1,0 +1,50 @@
+The imagefile-format is meant to be parsed easily
+and used to pipe images losslessly.
+
+# WHY IMAGEFILE?
+
+Most current image-formats have their compression
+incorporated in their format itself.
+This has some advantages, but reaches its limits
+with lossless formats (e.g. PNG).
+The basic idea of the imagefile-format is to separate
+these to and having a completely transparent image-format.
+
+Pattern resolution is done while compressing, not while
+converting the image.
+For example, imagefile always stores an alpha-channel,
+even if the image doesn't have alpha-variation.
+This may sound like a big waste, but as soon as you
+compress an image of this kind, the bzip2-algorithm
+takes care of the easy pattern, that each 4th character
+has the same value.
+This leads to almost no overhead while keeping parsing
+really simple.
+
+# FORMAT:
+
+Bytes   Description
+9	imagefile
+4	32 bit BE Integer (width)
+4	32 bit BE Integer (height)
+[1111]	RGBA-row-aligned-pixel-array
+
+# EXAMPLES:
+
+encoding:
+png2imagefile < example.png > example.image
+png2imagefile < example.png | bzip2 > example.image.bz2
+
+decoding:
+imagefile2png < example.image > example.png
+bzcat example.image.bz2 | imagefile2png > example.png
+
+# WHY BZ2?
+
+Using BZ2, you can get smaller filesizes than with PNG,
+especially with line-drawings.
+For normal pictures, the bz2-compression yields roughly
+the same sizes as png does.
+Always keep in mind that using PNG involves having to
+rely on libpng to decode the image for you, whereas
+imagefile is a completely transparent format.
