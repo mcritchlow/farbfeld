@@ -64,6 +64,9 @@ main(int argc, char *argv[])
 	/* write rows */
 	png_row_len = strlen("RGBA") * width * sizeof(uint8_t);
 	png_row = malloc(png_row_len);
+	if (!png_row) {
+		fprintf(stderr, "failed to allocate row-buffer\n");
+	}
 
 	for (i=0; i < height; ++i) {
 		if (fread(png_row, 1, png_row_len, stdin) != png_row_len) {
