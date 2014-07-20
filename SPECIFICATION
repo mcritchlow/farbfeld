@@ -32,12 +32,12 @@ Bytes   Description
 # EXAMPLES:
 
 encoding:
-png2imagefile < example.png > example.image
-png2imagefile < example.png | bzip2 > example.image.bz2
+png2if < example.png > example.if
+png2if < example.png | bzip2 > example.if.bz2
 
 decoding:
-imagefile2png < example.image > example.png
-bzcat example.image.bz2 | imagefile2png > example.png
+if2png < example.if > example.png
+bzcat example.if.bz2 | if2png > example.png
 
 # WHY BZ2?
 
