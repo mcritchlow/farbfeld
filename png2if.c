@@ -71,6 +71,7 @@ main(int argc, char *argv[])
 	}
 
 	/* clean up */
+	png_free_data(png_struct_p, png_info_p, PNG_FREE_ALL, -1);
 	png_destroy_read_struct(&png_struct_p, &png_info_p, NULL);
 	return EXIT_SUCCESS;
 }
