@@ -26,7 +26,8 @@ main(int argc, char *argv[])
 	png_structp png_struct_p;
 	png_infop png_info_p;
 	uint8_t hdr[17], *png_row;
-	uint32_t width, height, png_row_len, i;
+	png_uint_32 width, height, i;
+	png_size_t png_row_len;
 
 	ARGBEGIN {
 	default:
@@ -41,7 +42,7 @@ main(int argc, char *argv[])
 		fprintf(stderr, "failed to read from stdin or input too short\n");
 		goto err;
 	}
-	if (strcmp("imagefile", hdr)) {
+	if (memcmp("imagefile", hdr, 9)) {
 		fprintf(stderr, "invalid header\n");
 		goto err;
 	}

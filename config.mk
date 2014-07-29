@@ -7,7 +7,7 @@ PREFIX = /usr/local
 LIBS = -lpng
 
 # flags
-CFLAGS = -std=c90 -pedantic -ansi -Wall -Wextra -Wno-pointer-sign -Wno-maybe-uninitialized -Wno-clobbered -Os
+CFLAGS = -std=c90 -ansi -pedantic -Wall -Wextra
 LDFLAGS = -s ${LIBS}
 
 # compiler and linker

@@ -24,7 +24,10 @@ main(int argc, char *argv[])
 	png_structp png_struct_p;
 	png_infop png_info_p;
 	png_bytepp png_row_p;
-	uint32_t width, height, val_be, depth, color, interlace, png_row_len, r;
+	png_uint_32 width, height, i;
+	png_size_t png_row_len;
+	uint32_t val_be;
+	int depth, color, interlace;
 
 	ARGBEGIN {
 	default:
@@ -60,8 +63,8 @@ main(int argc, char *argv[])
 	fwrite(&val_be, sizeof(uint32_t), 1, stdout);
 
 	/* write data */
-	for (r = 0; r < height; ++r) {
-		if (fwrite(png_row_p[r], 1, (size_t)png_row_len, stdout) != png_row_len) {
+	for (i = 0; i < height; i++) {
+		if (fwrite(png_row_p[i], 1, png_row_len, stdout) != png_row_len) {
 			fprintf(stderr, "fwrite() failed\n");
 			goto err;
 		}
