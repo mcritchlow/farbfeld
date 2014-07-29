@@ -43,7 +43,7 @@ main(int argc, char *argv[])
 		goto err;
 	}
 	if (memcmp("imagefile", hdr, 9)) {
-		fprintf(stderr, "invalid header\n");
+		fprintf(stderr, "invalid magic in header\n");
 		goto err;
 	}
 	width = ntohl((hdr[9] << 0) | (hdr[10] << 8) | (hdr[11] << 16) | (hdr[12] << 24));
