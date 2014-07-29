@@ -46,8 +46,8 @@ main(int argc, char *argv[])
 		fprintf(stderr, "invalid magic in header\n");
 		return EXIT_FAILURE;
 	}
-	width = ntohl((hdr[9] << 0) | (hdr[10] << 8) | (hdr[11] << 16) | (hdr[12] << 24));
-	height = ntohl((hdr[13] << 0) | (hdr[14] << 8) | (hdr[15] << 16) | (hdr[16] << 24));
+	width = ntohl((hdr[9] << 24) | (hdr[10] << 16) | (hdr[11] << 8) | (hdr[12] << 0));
+	height = ntohl((hdr[13] << 24) | (hdr[14] << 16) | (hdr[15] << 8) | (hdr[16] << 0));
 
 	/* load png */
 	png_struct_p = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);

@@ -57,10 +57,8 @@ main(int argc, char *argv[])
 
 	/* write header with big endian width and height-values */
 	fprintf(stdout, "imagefile");
-	val_be = htonl(width);
-	fwrite(&val_be, sizeof(uint32_t), 1, stdout);
-	val_be = htonl(height);
-	fwrite(&val_be, sizeof(uint32_t), 1, stdout);
+	fwrite(&width, sizeof(uint32_t), 1, stdout);
+	fwrite(&height, sizeof(uint32_t), 1, stdout);
 
 	/* write data */
 	for (i = 0; i < height; i++) {
