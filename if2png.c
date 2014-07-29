@@ -25,7 +25,7 @@ main(int argc, char *argv[])
 {
 	png_structp png_struct_p;
 	png_infop png_info_p;
-	uint8_t hdr[17], *png_row = NULL;
+	uint8_t hdr[17], *png_row;
 	png_uint_32 width, height, i;
 	png_size_t png_row_len;
 
