@@ -1,13 +1,13 @@
 /* See LICENSE file for copyright and license details. */
 #include <arpa/inet.h>
+#include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 
-#include "arg.h"
 #include <png.h>
+#include "arg.h"
 
 char *argv0;
 
