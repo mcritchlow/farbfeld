@@ -3,10 +3,10 @@
 
 include config.mk
 
-SRC = png2if.c if2png.c jpg2if.c
+SRC = png2if.c if2png.c jpg2if.c gif2if.c
 OBJ = ${SRC:.c=.o}
 
-all: options png2if if2png jpg2if
+all: options png2if if2png jpg2if gif2if
 
 options:
 	@echo imagefile build options:
@@ -19,6 +19,10 @@ options:
 	@${CC} -c -o $@ ${CFLAGS} $<
 
 ${OBJ}: config.mk
+
+gif2if: gif2if.o
+	@echo CC -o $@
+	@${CC} -o $@ gif2if.o ${LDFLAGS} ${GIF_LIBS}
 
 jpg2if: jpg2if.o
 	@echo CC -o $@
@@ -34,7 +38,7 @@ if2png: if2png.o
 
 clean:
 	@echo cleaning
-	@rm -f png2if if2png jpg2if ${OBJ}
+	@rm -f png2if if2png jpg2if gif2if ${OBJ}
 
 install: all
 	@echo installing executable files to ${DESTDIR}${PREFIX}/bin
