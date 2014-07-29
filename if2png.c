@@ -40,11 +40,11 @@ main(int argc, char *argv[])
 	/* header */
 	if (fread(hdr, 1, strlen(HEADER_FORMAT), stdin) != strlen(HEADER_FORMAT)) {
 		fprintf(stderr, "failed to read from stdin or input too short\n");
-		goto err;
+		return EXIT_FAILURE;
 	}
 	if (memcmp("imagefile", hdr, 9)) {
 		fprintf(stderr, "invalid magic in header\n");
-		goto err;
+		return EXIT_FAILURE;
 	}
 	width = ntohl((hdr[9] << 0) | (hdr[10] << 8) | (hdr[11] << 16) | (hdr[12] << 24));
 	height = ntohl((hdr[13] << 0) | (hdr[14] << 8) | (hdr[15] << 16) | (hdr[16] << 24));
@@ -55,7 +55,7 @@ main(int argc, char *argv[])
 
 	if (!png_struct_p || !png_info_p || setjmp(png_jmpbuf(png_struct_p))) {
 		fprintf(stderr, "failed to initialize libpng\n");
-		goto err;
+		return EXIT_FAILURE;
 	}
 	png_init_io(png_struct_p, stdout);
 	png_set_IHDR(png_struct_p, png_info_p, width, height, 8, PNG_COLOR_TYPE_RGB_ALPHA,
@@ -67,13 +67,13 @@ main(int argc, char *argv[])
 	png_row = malloc(png_row_len);
 	if (!png_row) {
 		fprintf(stderr, "failed to allocate row-buffer\n");
-		goto err;
+		return EXIT_FAILURE;
 	}
 
 	for (i = 0; i < height; ++i) {
 		if (fread(png_row, 1, png_row_len, stdin) != png_row_len) {
 			fprintf(stderr, "unexpected EOF or row-skew at %lu\n", (unsigned long)i);
-			goto err;
+			return EXIT_FAILURE;
 		}
 		png_write_row(png_struct_p, png_row);
 	}
@@ -84,9 +84,4 @@ main(int argc, char *argv[])
 	png_destroy_write_struct(&png_struct_p, NULL);
 	free(png_row);
 	return EXIT_SUCCESS;
-err:
-	png_free_data(png_struct_p, png_info_p, PNG_FREE_ALL, -1);
-	png_destroy_write_struct(&png_struct_p, NULL);
-	free(png_row);
-	return EXIT_FAILURE;
 }

@@ -43,7 +43,7 @@ main(int argc, char *argv[])
 
 	if (!png_struct_p || !png_info_p || setjmp(png_jmpbuf(png_struct_p))) {
 		fprintf(stderr, "failed to initialize libpng");
-		goto err;
+		return EXIT_FAILURE;
 	}
 	png_init_io(png_struct_p, stdin);
 	png_set_add_alpha(png_struct_p, 255, PNG_FILLER_AFTER);
@@ -66,14 +66,11 @@ main(int argc, char *argv[])
 	for (i = 0; i < height; i++) {
 		if (fwrite(png_row_p[i], 1, png_row_len, stdout) != png_row_len) {
 			fprintf(stderr, "fwrite() failed\n");
-			goto err;
+			return EXIT_FAILURE;
 		}
 	}
 
 	/* clean up */
 	png_destroy_read_struct(&png_struct_p, &png_info_p, NULL);
 	return EXIT_SUCCESS;
-err:
-	png_destroy_read_struct(&png_struct_p, &png_info_p, NULL);
-	return EXIT_FAILURE;
 }
