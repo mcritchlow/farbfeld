@@ -70,9 +70,9 @@ main(int argc, char *argv[])
 		goto err;
 	}
 
-	for (i=0; i < height; ++i) {
+	for (i = 0; i < height; ++i) {
 		if (fread(png_row, 1, png_row_len, stdin) != png_row_len) {
-			fprintf(stderr, "unexpected EOF or row-skew at %d\n", i);
+			fprintf(stderr, "unexpected EOF or row-skew at %lu\n", (unsigned long)i);
 			goto err;
 		}
 		png_write_row(png_struct_p, png_row);
