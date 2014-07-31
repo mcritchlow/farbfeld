@@ -22,19 +22,19 @@ ${OBJ}: config.mk
 
 gif2if: gif2if.o
 	@echo CC -o $@
-	@${CC} -o $@ gif2if.o ${LDFLAGS} ${GIF_LIBS}
+	@${CC} -o $@ gif2if.o ${GIF_LIBS} ${LDFLAGS}
 
 jpg2if: jpg2if.o
 	@echo CC -o $@
-	@${CC} -o $@ jpg2if.o ${LDFLAGS} ${JPEG_LIBS}
+	@${CC} -o $@ jpg2if.o ${JPEG_LIBS} ${LDFLAGS}
 
 png2if: png2if.o
 	@echo CC -o $@
-	@${CC} -o $@ png2if.o ${LDFLAGS} ${PNG_LIBS}
+	@${CC} -o $@ png2if.o ${PNG_LIBS} ${LDFLAGS}
 
 if2png: if2png.o
 	@echo CC -o $@
-	@${CC} -o $@ if2png.o ${LDFLAGS} ${PNG_LIBS}
+	@${CC} -o $@ if2png.o ${PNG_LIBS} ${LDFLAGS}
 
 clean:
 	@echo cleaning
