@@ -38,7 +38,8 @@ main(int argc, char *argv[])
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
 	uint32_t width, height, val_be;
-	size_t jpeg_row_len;
+	uint8_t *if_row = NULL;
+	size_t jpeg_row_len, if_row_len, i, dx, sx;
 	int status = EXIT_FAILURE;
 	JSAMPARRAY buffer; /* output row buffer */
 
@@ -65,20 +66,24 @@ main(int argc, char *argv[])
 	jpeg_stdio_src(&cinfo, stdin);
 
 	jpeg_read_header(&cinfo, TRUE);
+	width = cinfo.image_width;
+	height = cinfo.image_height;
 
 	/* change output for imagefile */
-	cinfo.output_components = 4;          /* # of color components per pixel */
-	cinfo.out_color_space = JCS_EXT_RGBA; /* colorspace of input image */
+	cinfo.output_components = 3;     /* # of color components per pixel */
+	cinfo.out_color_space = JCS_RGB; /* colorspace of input image */
 
 	jpeg_start_decompress(&cinfo);
-	jpeg_row_len = cinfo.output_width * cinfo.output_components;
+	jpeg_row_len = width * cinfo.output_components;
 
 	/* Make a one-row-high sample array that will go away when done with image */
 	buffer = (*cinfo.mem->alloc_sarray)
 	         ((j_common_ptr) &cinfo, JPOOL_IMAGE, jpeg_row_len, 1);
-
-	width = cinfo.image_width;
-	height = cinfo.image_height;
+	if_row_len = strlen("RGBA") * width;
+	if(!(if_row = malloc(if_row_len))) {
+		fprintf(stderr, "Can't malloc\n");
+		return EXIT_FAILURE;
+	}
 
 	/* write header with big endian width and height-values */
 	fprintf(stdout, "imagefile");
@@ -93,8 +98,14 @@ main(int argc, char *argv[])
 		 * more than one scanline at a time if that's more convenient. */
 		(void)jpeg_read_scanlines(&cinfo, buffer, 1);
 
+		for(i = 0, dx = 0, sx = 0; i < width; i++, sx += 3, dx += 4) {
+			if_row[dx] = buffer[0][sx];
+			if_row[dx+1] = buffer[0][sx+1];
+			if_row[dx+2] = buffer[0][sx+2];
+			if_row[dx+3] = 255;
+		}
 		/* write data */
-		if (fwrite(buffer[0], 1, jpeg_row_len, stdout) != jpeg_row_len) {
+		if (fwrite(if_row, 1, if_row_len, stdout) != if_row_len) {
 			fprintf(stderr, "fwrite() failed\n");
 			goto cleanup;
 		}
@@ -103,6 +114,7 @@ main(int argc, char *argv[])
 	status = EXIT_SUCCESS;
 
 cleanup:
+	free(if_row);
 	jpeg_destroy_decompress(&cinfo);
 
 	return status;
