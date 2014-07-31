@@ -25,18 +25,6 @@ die(const char *s) {
 	exit(EXIT_FAILURE);
 }
 
-void
-gif_print_error(int code)
-{
-	const char *err = GifErrorString(code);
-
-	if(err != NULL)
-		fprintf(stderr, "GIF-LIB error: %s.\n", err);
-	else
-		fprintf(stderr, "GIF-LIB undefined error %d.\n", code);
-	exit(EXIT_FAILURE);
-}
-
 void *
 emalloc(size_t size) {
 	void *p;
@@ -59,7 +47,7 @@ main(int argc, char *argv[])
 	uint32_t i, j, k;
 	size_t gif_row_len;
 	uint8_t *if_row;
-	int errorcode, extcode, row, col, imagenum = 0;
+	int extcode, row, col, imagenum = 0;
 	int interlacedoffset[] = { 0, 4, 2, 1 };
 	int interlacedjumps[] = { 8, 8, 4, 2 };
 
@@ -72,8 +60,13 @@ main(int argc, char *argv[])
 		usage();
 
 	/* load gif */
-	if ((giffile = DGifOpenFileHandle(0, &errorcode)) == NULL)
-		gif_print_error(errorcode);
+#if GIFLIB_MAJOR >= 5
+	if ((giffile = DGifOpenFileHandle(0, NULL)) == NULL)
+		die("gif error\n");
+#else
+	if ((giffile = DGifOpenFileHandle(0)) == NULL)
+		die("gif error\n");
+#endif
 
 	width = (uint32_t)giffile->SWidth;
 	height = (uint32_t)giffile->SHeight;
@@ -92,12 +85,12 @@ main(int argc, char *argv[])
 	/* scan the content of the GIF file and load the image(s) in: */
 	do {
 		if (DGifGetRecordType(giffile, &recordtype) == GIF_ERROR)
-			gif_print_error(giffile->Error);
+			die("gif error\n");
 
 		switch (recordtype) {
 		case IMAGE_DESC_RECORD_TYPE:
 			if (DGifGetImageDesc(giffile) == GIF_ERROR)
-				gif_print_error(giffile->Error);
+				die("gif error\n");
 
 			/* image position relative to Screen. */
 			row = giffile->Image.Top;
@@ -114,13 +107,13 @@ main(int argc, char *argv[])
 				for (i = 0; i < 4; i++) {
 					for (j = row + interlacedoffset[i]; j < row + rheight; j += interlacedjumps[i]) {
 						if (DGifGetLine(giffile, &gifrows[j][col], rwidth) == GIF_ERROR)
-							gif_print_error(giffile->Error);
+							die("gif error\n");
 					}
 				}
 			} else {
 				for (i = 0; i < rheight; i++) {
 					if (DGifGetLine(giffile, &gifrows[row++][col], rwidth) == GIF_ERROR)
-						gif_print_error(giffile->Error);
+						die("gif error\n");
 				}
 			}
 			/* this is set to disallow multiple images */
@@ -130,10 +123,10 @@ main(int argc, char *argv[])
 		case EXTENSION_RECORD_TYPE:
 			/* Skip any extension blocks in file: */
 			if (DGifGetExtension(giffile, &extcode, &extension) == GIF_ERROR)
-				gif_print_error(giffile->Error);
+				die("gif error\n");
 			while (extension != NULL) {
 				if (DGifGetExtensionNext(giffile, &extension) == GIF_ERROR)
-					gif_print_error(giffile->Error);
+					die("gif error\n");
 			}
 			break;
 		case TERMINATE_RECORD_TYPE:
