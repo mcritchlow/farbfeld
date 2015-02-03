@@ -43,14 +43,17 @@ clean:
 install: all
 	@echo installing executable files to ${DESTDIR}${PREFIX}/bin
 	@mkdir -p ${DESTDIR}${PREFIX}/bin
-	@cp -f png2if if2png jpg2if ${DESTDIR}${PREFIX}/bin
+	@cp -f png2if jpg2if if2png gif2if ${DESTDIR}${PREFIX}/bin
 	@chmod 755 ${DESTDIR}${PREFIX}/bin/png2if
 	@chmod 755 ${DESTDIR}${PREFIX}/bin/jpg2if
 	@chmod 755 ${DESTDIR}${PREFIX}/bin/if2png
+	@chmod 755 ${DESTDIR}${PREFIX}/bin/gif2if
 
 uninstall:
 	@echo removing executable files from ${DESTDIR}${PREFIX}/bin
 	@rm -f ${DESTDIR}${PREFIX}/bin/png2if
+	@rm -f ${DESTDIR}${PREFIX}/bin/jpg2if
 	@rm -f ${DESTDIR}${PREFIX}/bin/if2png
+	@rm -f ${DESTDIR}${PREFIX}/bin/gif2if
 
 .PHONY: all options clean install uninstall
