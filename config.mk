@@ -13,10 +13,10 @@ GIF_LIBS = -lgif
 CPPFLAGS =
 
 # debug
-#CFLAGS = -std=c90 -ansi -pedantic -Wall -Wextra -O0 -g -ggdb ${CPPFLAGS}
+#CFLAGS = -std=c99 -pedantic -Wall -Wextra -O0 -g -ggdb ${CPPFLAGS}
 #LDFLAGS = ${LIBS}
 # optimized
-CFLAGS = -std=c90 -ansi -pedantic -Wall -Wextra -Os ${CPPFLAGS}
+CFLAGS = -std=c99 -pedantic -Wall -Wextra -Os ${CPPFLAGS}
 LDFLAGS = -s ${LIBS}
 
 # compiler and linker
