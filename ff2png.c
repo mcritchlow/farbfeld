@@ -1,23 +1,22 @@
 /* See LICENSE file for copyright and license details. */
-#include <arpa/inet.h>
-#include <errno.h>
+#include <endian.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include <png.h>
+
 #include "arg.h"
 
 char *argv0;
 
-#define HEADER_FORMAT "imagefile########"
+#define HEADER_FORMAT "farbfeld########"
 
 static void
 usage(void)
 {
 	fprintf(stderr, "usage: %s\n", argv0);
-	exit(EXIT_FAILURE);
+	exit(1);
 }
 
 int
@@ -26,28 +25,29 @@ main(int argc, char *argv[])
 	png_structp png_struct_p;
 	png_infop png_info_p;
 	uint8_t hdr[17], *png_row;
+	uint16_t tmp16;
 	png_uint_32 width, height, i;
-	png_size_t png_row_len;
+	png_size_t png_row_len, j;
 
 	ARGBEGIN {
 	default:
 		usage();
 	} ARGEND;
 
-	if (argc != 0)
+	if (argc)
 		usage();
 
 	/* header */
 	if (fread(hdr, 1, strlen(HEADER_FORMAT), stdin) != strlen(HEADER_FORMAT)) {
 		fprintf(stderr, "failed to read from stdin or input too short\n");
-		return EXIT_FAILURE;
+		return 1;
 	}
-	if (memcmp("imagefile", hdr, 9)) {
+	if (memcmp("farbfeld", hdr, strlen("farbfeld"))) {
 		fprintf(stderr, "invalid magic in header\n");
-		return EXIT_FAILURE;
+		return 1;
 	}
-	width = ntohl((hdr[9] << 0) | (hdr[10] << 8) | (hdr[11] << 16) | (hdr[12] << 24));
-	height = ntohl((hdr[13] << 0) | (hdr[14] << 8) | (hdr[15] << 16) | (hdr[16] << 24));
+	width = be32toh((hdr[9] << 0) | (hdr[10] << 8) | (hdr[11] << 16) | (hdr[12] << 24));
+	height = be32toh((hdr[13] << 0) | (hdr[14] << 8) | (hdr[15] << 16) | (hdr[16] << 24));
 
 	/* load png */
 	png_struct_p = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -55,7 +55,7 @@ main(int argc, char *argv[])
 
 	if (!png_struct_p || !png_info_p || setjmp(png_jmpbuf(png_struct_p))) {
 		fprintf(stderr, "failed to initialize libpng\n");
-		return EXIT_FAILURE;
+		return 1;
 	}
 	png_init_io(png_struct_p, stdout);
 	png_set_IHDR(png_struct_p, png_info_p, width, height, 8, PNG_COLOR_TYPE_RGB_ALPHA,
@@ -67,13 +67,16 @@ main(int argc, char *argv[])
 	png_row = malloc(png_row_len);
 	if (!png_row) {
 		fprintf(stderr, "failed to allocate row-buffer\n");
-		return EXIT_FAILURE;
+		return 1;
 	}
 
 	for (i = 0; i < height; ++i) {
-		if (fread(png_row, 1, png_row_len, stdin) != png_row_len) {
-			fprintf(stderr, "unexpected EOF or row-skew at %lu\n", (unsigned long)i);
-			return EXIT_FAILURE;
+		for (j = 0; j < png_row_len; ++j) {
+			if (fread(&tmp16, 1, sizeof(uint16_t), stdin) != sizeof(uint16_t)) {
+				fprintf(stderr, "unexpected EOF or row-skew\n");
+				return 1;
+			}
+			png_row[j] = be16toh(tmp16) / (1 << 8);
 		}
 		png_write_row(png_struct_p, png_row);
 	}
@@ -83,5 +86,5 @@ main(int argc, char *argv[])
 	png_free_data(png_struct_p, png_info_p, PNG_FREE_ALL, -1);
 	png_destroy_write_struct(&png_struct_p, NULL);
 	free(png_row);
-	return EXIT_SUCCESS;
+	return 0;
 }

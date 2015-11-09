@@ -16,7 +16,7 @@ CPPFLAGS =
 #CFLAGS = -std=c99 -pedantic -Wall -Wextra -O0 -g -ggdb ${CPPFLAGS}
 #LDFLAGS = ${LIBS}
 # optimized
-CFLAGS = -std=c99 -pedantic -Wall -Wextra -Os ${CPPFLAGS}
+CFLAGS = -std=c99 -pedantic -Wall -Wextra -D_DEFAULT_SOURCE -Os ${CPPFLAGS}
 LDFLAGS = -s ${LIBS}
 
 # compiler and linker
