@@ -1,4 +1,4 @@
-# imagefile - tools to convert between png and ff
+# farbfeld - tools to convert between png and ff
 # See LICENSE file for copyright and license details
 
 include config.mk
