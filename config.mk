@@ -3,21 +3,10 @@
 # paths
 PREFIX = /usr/local
 
-# libs
-LIBS =
-PNG_LIBS = -lpng
-JPEG_LIBS = -ljpeg
-GIF_LIBS = -lgif
-
 # flags
-CPPFLAGS =
-
-# debug
-#CFLAGS = -std=c99 -pedantic -Wall -Wextra -O0 -g -ggdb ${CPPFLAGS}
-#LDFLAGS = ${LIBS}
-# optimized
-CFLAGS = -std=c99 -pedantic -Wall -Wextra -D_DEFAULT_SOURCE -Os ${CPPFLAGS}
-LDFLAGS = -s ${LIBS}
+CPPFLAGS = -D_DEFAULT_SOURCE
+CFLAGS   = -std=c99 -pedantic -Wall -Wextra -Os ${CPPFLAGS}
+LDFLAGS  = -s -lpng -ljpeg -lgif
 
 # compiler and linker
 CC = cc
