@@ -64,7 +64,8 @@ main(int argc, char *argv[])
 	/* TODO: allow 16 bit PNGs to be converted losslessly */
 	for (r = 0; r < height; ++r) {
 		for (i = 0; i < png_row_len; i++) {
-			tmp16 = htobe16((uint16_t)png_row_p[r][i]);
+			/* ((2^16-1) / 255) == 257 */
+			tmp16 = htobe16(257 * png_row_p[r][i]);
 			fwrite(&tmp16, sizeof(uint16_t), 1, stdout);
 		}
 	}

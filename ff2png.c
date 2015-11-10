@@ -46,8 +46,8 @@ main(int argc, char *argv[])
 		fprintf(stderr, "invalid magic in header\n");
 		return 1;
 	}
-	width = be32toh((hdr[9] << 0) | (hdr[10] << 8) | (hdr[11] << 16) | (hdr[12] << 24));
-	height = be32toh((hdr[13] << 0) | (hdr[14] << 8) | (hdr[15] << 16) | (hdr[16] << 24));
+	width = be32toh(*((uint32_t *)(hdr + 8)));
+	height = be32toh(*((uint32_t *)(hdr + 12)));
 
 	/* load png */
 	png_struct_p = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -76,7 +76,8 @@ main(int argc, char *argv[])
 				fprintf(stderr, "unexpected EOF or row-skew\n");
 				return 1;
 			}
-			png_row[j] = be16toh(tmp16) / (1 << 8);
+			/* ((2^16-1) / 255) == 257 */
+			png_row[j] = (uint8_t)(be16toh(tmp16) / 257);
 		}
 		png_write_row(png_struct_p, png_row);
 	}
