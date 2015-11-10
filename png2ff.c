@@ -3,18 +3,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <png.h>
-
-#include "arg.h"
-
-char *argv0;
-
-static void
-usage(void)
-{
-	fprintf(stderr, "usage:%s\n", argv0);
-	exit(1);
-}
 
 int
 main(int argc, char *argv[])
@@ -26,13 +16,10 @@ main(int argc, char *argv[])
 	uint32_t width, height, png_row_len, tmp32, r, i;
 	uint16_t tmp16;
 
-	ARGBEGIN {
-	default:
-		usage();
-	} ARGEND
-
-	if (argc)
-		usage();
+	if (argc > 1) {
+		fprintf(stderr, "usage:%s\n", argv[0]);
+		return 1;
+	}
 
 	/* load png */
 	png_struct_p = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL,
@@ -72,5 +59,6 @@ main(int argc, char *argv[])
 
 	/* cleanup */
 	png_destroy_read_struct(&png_struct_p, &png_info_p, NULL);
+
 	return 0;
 }

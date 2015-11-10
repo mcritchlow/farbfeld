@@ -4,38 +4,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <png.h>
 
-#include "arg.h"
-
-char *argv0;
-
 #define HEADER_FORMAT "farbfeld########"
-
-static void
-usage(void)
-{
-	fprintf(stderr, "usage: %s\n", argv0);
-	exit(1);
-}
 
 int
 main(int argc, char *argv[])
 {
 	png_structp png_struct_p;
 	png_infop png_info_p;
-	uint8_t hdr[17], *png_row;
+	uint8_t hdr[16], *png_row;
 	uint16_t tmp16;
 	png_uint_32 width, height, i;
 	png_size_t png_row_len, j;
 
-	ARGBEGIN {
-	default:
-		usage();
-	} ARGEND;
-
-	if (argc)
-		usage();
+	if (argc > 1) {
+		fprintf(stderr, "usage: %s\n", argv[0]);
+		return 1;
+	}
 
 	/* header */
 	if (fread(hdr, 1, strlen(HEADER_FORMAT), stdin) != strlen(HEADER_FORMAT)) {
@@ -87,5 +74,6 @@ main(int argc, char *argv[])
 	png_free_data(png_struct_p, png_info_p, PNG_FREE_ALL, -1);
 	png_destroy_write_struct(&png_struct_p, NULL);
 	free(png_row);
+
 	return 0;
 }
