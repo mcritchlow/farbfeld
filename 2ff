@@ -1,0 +1,8 @@
+#!/bin/sh
+FORMAT=`file -ib "$1" | cut -d ";" -f 1`
+
+if [ "$FORMAT" = "image/png" ]; then
+	png2ff < "$1"
+else
+	convert "$1" png:- | png2ff
+fi;

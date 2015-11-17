@@ -17,7 +17,7 @@ clean:
 install:
 	@echo installing into ${DESTDIR}${PREFIX}/bin
 	@mkdir -p ${DESTDIR}${PREFIX}/bin
-	@cp -f png2ff ff2png ${DESTDIR}${PREFIX}/bin
+	@cp -f png2ff ff2png 2ff ${DESTDIR}${PREFIX}/bin
 
 uninstall:
 	@echo removing from ${DESTDIR}${PREFIX}/bin
