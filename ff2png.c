@@ -1,6 +1,6 @@
 /* See LICENSE file for copyright and license details. */
-#define _BSD_SOURCE
-#include <endian.h>
+#include <arpa/inet.h>
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,8 +34,8 @@ main(int argc, char *argv[])
 		fprintf(stderr, "invalid magic in header\n");
 		return 1;
 	}
-	width = be32toh(*((uint32_t *)(hdr + 8)));
-	height = be32toh(*((uint32_t *)(hdr + 12)));
+	width = ntohl(*((uint32_t *)(hdr + 8)));
+	height = ntohl(*((uint32_t *)(hdr + 12)));
 
 	/* load png */
 	png_struct_p = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -65,7 +65,7 @@ main(int argc, char *argv[])
 				return 1;
 			}
 			/* ((2^16-1) / 255) == 257 */
-			png_row[j] = (uint8_t)(be16toh(tmp16) / 257);
+			png_row[j] = (uint8_t)(ntohs(tmp16) / 257);
 		}
 		png_write_row(png_struct_p, png_row);
 	}

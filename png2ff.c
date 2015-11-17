@@ -1,6 +1,6 @@
 /* See LICENSE file for copyright and license details. */
-#define _BSD_SOURCE
-#include <endian.h>
+#include <arpa/inet.h>
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,9 +43,9 @@ main(int argc, char *argv[])
 
 	/* write header */
 	fprintf(stdout, "farbfeld");
-	tmp32 = htobe32(width);
+	tmp32 = htonl(width);
 	fwrite(&tmp32, sizeof(uint32_t), 1, stdout);
-	tmp32 = htobe32(height);
+	tmp32 = htonl(height);
 	fwrite(&tmp32, sizeof(uint32_t), 1, stdout);
 
 	/* write data */
@@ -53,7 +53,7 @@ main(int argc, char *argv[])
 	for (r = 0; r < height; ++r) {
 		for (i = 0; i < png_row_len; i++) {
 			/* ((2^16-1) / 255) == 257 */
-			tmp16 = htobe16(257 * png_row_p[r][i]);
+			tmp16 = htons(257 * png_row_p[r][i]);
 			fwrite(&tmp16, sizeof(uint16_t), 1, stdout);
 		}
 	}
