@@ -17,7 +17,7 @@ static void
 usage(void)
 {
 	fprintf(stderr, "usage: %s\n", argv0);
-	exit(EXIT_FAILURE);
+	exit(1);
 }
 
 METHODDEF(void)
@@ -37,9 +37,9 @@ main(int argc, char *argv[])
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
 	uint32_t width, height, val_be;
-	uint16_t *ff_row = NULL;
+	uint16_t *ff_row;
 	size_t jpeg_row_len, ff_row_len, i, dx, sx;
-	int status = EXIT_FAILURE;
+	int ret = 1;
 	JSAMPARRAY buffer; /* output row buffer */
 
 	argv0 = argv[0];
@@ -77,7 +77,7 @@ main(int argc, char *argv[])
 	ff_row_len = strlen("RRGGBBAA") * width;
 	if(!(ff_row = malloc(ff_row_len))) {
 		fprintf(stderr, "Can't malloc\n");
-		return EXIT_FAILURE;
+		return 1;
 	}
 
 	/* write header with big endian width and height-values */
@@ -107,11 +107,11 @@ main(int argc, char *argv[])
 		}
 	}
 	jpeg_finish_decompress(&cinfo);
-	status = EXIT_SUCCESS;
+	ret = 0;
 
 cleanup:
 	free(ff_row);
 	jpeg_destroy_decompress(&cinfo);
 
-	return status;
+	return ret;
 }
