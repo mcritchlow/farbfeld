@@ -7,7 +7,7 @@ PNGLIB = /usr/local/lib
 PNGINC = /usr/local/include
 
 INCS = -I${PNGINC}
-LIBS = -L${PNGLIB} -lpng
+LIBS = -L${PNGLIB} -lpng -ljpeg
 
 # flags
 CPPFLAGS = -D_DEFAULT_SOURCE
