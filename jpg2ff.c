@@ -37,7 +37,7 @@ main(int argc, char *argv[])
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
 	uint32_t width, height, val_be;
-	uint16_t *ff_row;
+	uint16_t *ff_row = NULL;
 	size_t jpeg_row_len, ff_row_len, i, dx, sx;
 	int ret = 1;
 	JSAMPARRAY buffer; /* output row buffer */
