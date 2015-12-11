@@ -1,8 +1,18 @@
 #!/bin/sh
-FORMAT=`file -ib "$1" | cut -d ";" -f 1`
+if [ "$#" -ne 0 ]; then
+	echo "usage: $0" >&2
+	exit 1
+fi
+
+TMP=$(mktemp)
+cat > $TMP;
+
+FORMAT=$(file -ib $TMP | cut -d ";" -f 1);
 
 case "$FORMAT" in
-    image/png)  png2ff < "$1" ;;
-    image/jpeg) jpg2ff < "$1" ;;
-    *) convert "$1" png:- | png2ff ;;
+    image/png)  png2ff < $TMP ;;
+    image/jpeg) jpg2ff < $TMP ;;
+    *) convert $TMP png:- | png2ff ;;
 esac
+
+rm $TMP;
