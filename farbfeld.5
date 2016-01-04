@@ -1,0 +1,106 @@
+.Dd 2016-01-04
+.Dt FARBFELD 5
+.Os suckless.org
+.Sh NAME
+.Nm farbfeld
+.Nd suckless image format
+.Sh DESCRIPTION
+.Nm
+is a
+.Em lossless
+image format which is easy to parse, pipe and compress.
+It has the following format:
+.Bd -literal -offset left
+BYTES    DESCRIPTION
+8        "farbfeld" magic value
+4        32-Bit BE unsigned integer (width)
+4        32-Bit BE unsigned integer (height)
+[2222]   4*16-Bit BE unsigned integers [RGBA] / pixel, row-aligned
+.Ed
+.sp
+The RGB-data should be sRGB for best interoperability.
+.Sh USAGE
+.Nm
+provides
+.Xr png2ff 1 ,
+.Xr jpg2ff 1 ,
+.Xr 2ff 1 ,
+.Xr ff2png 1
+for
+.Em conversions ;
+.Xr bzip2 1
+is recommended for
+.Em compression ,
+giving results comparable with PNG for photographs and much better results
+for other image types.
+.sp
+The
+.Em file extension
+is ".ff" and compression extensions shall be
+appended (e.g. ".ff.bz2").
+.Sh MOTIVATION
+.Nm was created because the author was not satisfied with the boilerplate
+and inherent complexity involved in handling common image formats
+(PNG, JPEG, GIF,...), having to rely on bloated libraries not being able
+to focus on the task at hand for a given problem.
+.Sh EXAMPLES
+Below is an example for a color inverter. No external libraries other
+than libc are needed to read the image data:
+.Bd -literal -offset left
+#include <arpa/inet.h>
+
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+(...)
+
+uint32_t width, height, i, j, k;
+uint16_t rgba[4];
+uint8_t hdr[strlen("farbfeld") + 2 * sizeof(uint32_t)];
+
+if (fread(hdr, 1, sizeof(hdr), infile) != sizeof(hdr)) {
+	fprintf(stderr, "incomplete header\\n");
+	exit(1);
+}
+if (memcmp("farbfeld", hdr, strlen("farbfeld"))) {
+	fprintf(stderr, "invalid magic\\n");
+	exit(1);
+}
+width = ntohl(*((uint32_t *)(hdr + 8)));
+height = ntohl(*((uint32_t *)(hdr + 12)));
+
+for (i = 0; i < height; i++) {
+	for (j = 0; j < width; j++) {
+		if (fread(rgba, 4, sizeof(uint16_t), infile) != 4) {
+			fprintf(stderr, "unexpected EOF\\n");
+			exit(1);
+		}
+		for (k = 0; k < 4; k++) {
+			rgba[k] = ntohs(rgba[k]);
+		}
+
+		/* invert colors */
+		rgba[0] = 65535 - rgba[0];
+		rgba[1] = 65535 - rgba[1];
+		rgba[2] = 65535 - rgba[2];
+
+		for (k = 0; k < 4; k++) {
+			rgba[k] = htons(rgba[k]);
+		}
+		if (fwrite(rgba, 4, sizeof(uint16_t), outfile) != 4) {
+			fprintf(stderr, "write error\\n");
+			exit(1);
+		}
+	}
+}
+.Ed
+.Sh SEE ALSO
+.Xr 2ff 1 ,
+.Xr bzip2 1 ,
+.Xr ff2png 1 ,
+.Xr jpg2ff 1 ,
+.Xr png2ff 1
+.Sh AUTHORS
+.An Laslo Hunhold Aq Mt dev@frign.de
