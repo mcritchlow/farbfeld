@@ -13,7 +13,7 @@ main(int argc, char *argv[])
 	png_structp png_struct_p;
 	png_infop png_info_p;
 	png_bytepp png_row_p;
-	int depth, color, interlace;
+	int depth;
 	uint32_t width, height, png_row_len, tmp32, r, i;
 	uint16_t tmp16;
 
@@ -43,7 +43,7 @@ main(int argc, char *argv[])
 	png_read_png(png_struct_p, png_info_p, PNG_TRANSFORM_PACKING |
 	             PNG_TRANSFORM_EXPAND, NULL);
 	png_get_IHDR(png_struct_p, png_info_p, &width, &height, &depth,
-	             &color, &interlace, NULL, NULL);
+	             NULL, NULL, NULL, NULL);
 	png_row_len = png_get_rowbytes(png_struct_p, png_info_p);
 	png_row_p = png_get_rows(png_struct_p, png_info_p);
 
@@ -55,7 +55,8 @@ main(int argc, char *argv[])
 	fwrite(&tmp32, sizeof(uint32_t), 1, stdout);
 
 	/* write data */
-	if (depth == 8) {
+	switch(depth) {
+	case 8:
 		for (r = 0; r < height; ++r) {
 			for (i = 0; i < png_row_len; i++) {
 				/* ((2^16-1) / 255) == 257 */
@@ -63,7 +64,8 @@ main(int argc, char *argv[])
 				fwrite(&tmp16, sizeof(uint16_t), 1, stdout);
 			}
 		}
-	} else if (depth == 16) {
+		break;
+	case 16:
 		for (r = 0; r < height; ++r) {
 			for (i = 0; i < png_row_len / 2; i++) {
 				tmp16 = *((uint16_t *)
@@ -71,7 +73,8 @@ main(int argc, char *argv[])
 				fwrite(&tmp16, sizeof(uint16_t), 1, stdout);
 			}
 		}
-	} else {
+		break;
+	default:
 		fprintf(stderr, "format error\n");
 		return 1;
 	}
