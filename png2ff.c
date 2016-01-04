@@ -18,7 +18,7 @@ main(int argc, char *argv[])
 	uint16_t tmp16;
 
 	if (argc > 1) {
-		fprintf(stderr, "usage:%s\n", argv[0]);
+		fprintf(stderr, "usage: %s\n", argv[0]);
 		return 1;
 	}
 
@@ -27,10 +27,12 @@ main(int argc, char *argv[])
 	                                      NULL, NULL);
 	png_info_p = png_create_info_struct(png_struct_p);
 
-	if (!png_struct_p || !png_info_p || setjmp(png_jmpbuf(png_struct_p))) {
+	if (!png_struct_p || !png_info_p) {
 		fprintf(stderr, "failed to initialize libpng\n");
 		return 1;
 	}
+	if (setjmp(png_jmpbuf(png_struct_p)))
+		return 1;
 	png_init_io(png_struct_p, stdin);
 	if (png_get_valid(png_struct_p, png_info_p, PNG_INFO_tRNS))
 		png_set_tRNS_to_alpha(png_struct_p);
@@ -69,7 +71,6 @@ main(int argc, char *argv[])
 				fwrite(&tmp16, sizeof(uint16_t), 1, stdout);
 			}
 		}
-		fprintf(stderr, "written r=%d, i=%d\n", r, i);
 	} else {
 		fprintf(stderr, "format error\n");
 		return 1;
