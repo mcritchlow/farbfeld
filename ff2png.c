@@ -15,8 +15,8 @@ main(int argc, char *argv[])
 {
 	png_structp png_struct_p;
 	png_infop png_info_p;
-	uint8_t hdr[16], *png_row;
-	uint16_t tmp16;
+	uint8_t hdr[16];
+	uint16_t tmp16, *png_row;
 	png_uint_32 width, height, i;
 	png_size_t png_row_len, j;
 
@@ -46,12 +46,12 @@ main(int argc, char *argv[])
 		return 1;
 	}
 	png_init_io(png_struct_p, stdout);
-	png_set_IHDR(png_struct_p, png_info_p, width, height, 8, PNG_COLOR_TYPE_RGB_ALPHA,
+	png_set_IHDR(png_struct_p, png_info_p, width, height, 16, PNG_COLOR_TYPE_RGB_ALPHA,
 		     PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 	png_write_info(png_struct_p, png_info_p);
 
 	/* write rows */
-	png_row_len = strlen("RGBA") * width * sizeof(uint8_t);
+	png_row_len = strlen("RGBA") * width * sizeof(uint16_t);
 	png_row = malloc(png_row_len);
 	if (!png_row) {
 		fprintf(stderr, "failed to allocate row-buffer\n");
@@ -59,15 +59,14 @@ main(int argc, char *argv[])
 	}
 
 	for (i = 0; i < height; ++i) {
-		for (j = 0; j < png_row_len; ++j) {
+		for (j = 0; j < png_row_len / sizeof(uint16_t); ++j) {
 			if (fread(&tmp16, 1, sizeof(uint16_t), stdin) != sizeof(uint16_t)) {
 				fprintf(stderr, "unexpected EOF or row-skew\n");
 				return 1;
 			}
-			/* ((2^16-1) / 255) == 257 */
-			png_row[j] = (uint8_t)(ntohs(tmp16) / 257);
+			png_row[j] = tmp16;
 		}
-		png_write_row(png_struct_p, png_row);
+		png_write_row(png_struct_p, (uint8_t *)png_row);
 	}
 	png_write_end(png_struct_p, NULL);
 
