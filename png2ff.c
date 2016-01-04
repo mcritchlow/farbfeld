@@ -32,10 +32,14 @@ main(int argc, char *argv[])
 		return 1;
 	}
 	png_init_io(png_struct_p, stdin);
-	png_set_add_alpha(png_struct_p, 255, PNG_FILLER_AFTER);
+	if (png_get_valid(png_struct_p, png_info_p, PNG_INFO_tRNS))
+		png_set_tRNS_to_alpha(png_struct_p);
+	png_set_add_alpha(png_struct_p, 255*257, PNG_FILLER_AFTER);
+	png_set_expand_gray_1_2_4_to_8(png_struct_p);
 	png_set_gray_to_rgb(png_struct_p);
-	png_read_png(png_struct_p, png_info_p, PNG_TRANSFORM_STRIP_16 |
-	             PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND, NULL);
+	png_set_packing(png_struct_p);
+	png_read_png(png_struct_p, png_info_p, PNG_TRANSFORM_PACKING |
+	             PNG_TRANSFORM_EXPAND, NULL);
 	png_get_IHDR(png_struct_p, png_info_p, &width, &height, &depth,
 	             &color, &interlace, NULL, NULL);
 	png_row_len = png_get_rowbytes(png_struct_p, png_info_p);
@@ -49,16 +53,28 @@ main(int argc, char *argv[])
 	fwrite(&tmp32, sizeof(uint32_t), 1, stdout);
 
 	/* write data */
-	/* TODO: allow 16 bit PNGs to be converted losslessly */
-	for (r = 0; r < height; ++r) {
-		for (i = 0; i < png_row_len; i++) {
-			/* ((2^16-1) / 255) == 257 */
-			tmp16 = htons(257 * png_row_p[r][i]);
-			fwrite(&tmp16, sizeof(uint16_t), 1, stdout);
+	if (depth == 8) {
+		for (r = 0; r < height; ++r) {
+			for (i = 0; i < png_row_len; i++) {
+				/* ((2^16-1) / 255) == 257 */
+				tmp16 = htons(257 * png_row_p[r][i]);
+				fwrite(&tmp16, sizeof(uint16_t), 1, stdout);
+			}
 		}
+	} else if (depth == 16) {
+		for (r = 0; r < height; ++r) {
+			for (i = 0; i < png_row_len / 2; i++) {
+				tmp16 = *((uint16_t *)
+				                (png_row_p[r] + 2 * i));
+				fwrite(&tmp16, sizeof(uint16_t), 1, stdout);
+			}
+		}
+		fprintf(stderr, "written r=%d, i=%d\n", r, i);
+	} else {
+		fprintf(stderr, "format error\n");
+		return 1;
 	}
 
-	/* cleanup */
 	png_destroy_read_struct(&png_struct_p, &png_info_p, NULL);
 
 	return 0;
