@@ -13,7 +13,7 @@ main(int argc, char *argv[])
 	png_structp png_struct_p;
 	png_infop png_info_p;
 	png_bytepp png_row_p;
-	int depth;
+	int depth, color;
 	uint32_t width, height, png_row_len, tmp32, r, i;
 	uint16_t tmp16;
 
@@ -43,7 +43,7 @@ main(int argc, char *argv[])
 	png_read_png(png_struct_p, png_info_p, PNG_TRANSFORM_PACKING |
 	             PNG_TRANSFORM_EXPAND, NULL);
 	png_get_IHDR(png_struct_p, png_info_p, &width, &height, &depth,
-	             NULL, NULL, NULL, NULL);
+	             &color, NULL, NULL, NULL);
 	png_row_len = png_get_rowbytes(png_struct_p, png_info_p);
 	png_row_p = png_get_rows(png_struct_p, png_info_p);
 
