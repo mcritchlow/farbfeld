@@ -1,6 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include <arpa/inet.h>
 
+#include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,7 +14,7 @@ main(int argc, char *argv[])
 	png_structp png_struct_p;
 	png_infop png_info_p;
 	png_bytepp png_row_p;
-	int depth, color;
+	int depth, color, ret = 0;
 	uint32_t width, height, png_row_len, tmp32, r, i;
 	uint16_t tmp16;
 
@@ -28,7 +29,7 @@ main(int argc, char *argv[])
 	png_info_p = png_create_info_struct(png_struct_p);
 
 	if (!png_struct_p || !png_info_p) {
-		fprintf(stderr, "failed to initialize libpng\n");
+		fprintf(stderr, "%s: failed to initialize libpng\n", argv[0]);
 		return 1;
 	}
 	if (setjmp(png_jmpbuf(png_struct_p)))
@@ -48,7 +49,7 @@ main(int argc, char *argv[])
 	png_row_p = png_get_rows(png_struct_p, png_info_p);
 
 	/* write header */
-	fprintf(stdout, "farbfeld");
+	fputs("farbfeld", stdout);
 	tmp32 = htonl(width);
 	fwrite(&tmp32, sizeof(uint32_t), 1, stdout);
 	tmp32 = htonl(height);
@@ -75,11 +76,23 @@ main(int argc, char *argv[])
 		}
 		break;
 	default:
-		fprintf(stderr, "format error\n");
+		fprintf(stderr, "%s: format error\n", argv[0]);
 		return 1;
 	}
 
 	png_destroy_read_struct(&png_struct_p, &png_info_p, NULL);
 
-	return 0;
+	/* flush output */
+	if (fflush(stdout)) {
+		fprintf(stderr, "%s: fflush stdout: ", argv[0]);
+		perror(NULL);
+		ret = 1;
+	}
+	if (fclose(stdout) && !ret) {
+		fprintf(stderr, "%s: fclose stdout: ", argv[0]);
+		perror(NULL);
+		ret = 1;
+	}
+
+	return ret;
 }
