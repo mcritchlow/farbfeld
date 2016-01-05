@@ -72,9 +72,14 @@ if (memcmp("farbfeld", hdr, strlen("farbfeld"))) {
 width = ntohl(*((uint32_t *)(hdr + 8)));
 height = ntohl(*((uint32_t *)(hdr + 12)));
 
+if (fwrite(hdr, 1, sizeof(hdr), outfile) != sizeof(hdr)) {
+	fprintf(stderr, "write error\\n");
+	exit(1);
+}
+
 for (i = 0; i < height; i++) {
 	for (j = 0; j < width; j++) {
-		if (fread(rgba, 4, sizeof(uint16_t), infile) != 4) {
+		if (fread(rgba, sizeof(uint16_t), 4, infile) != 4) {
 			fprintf(stderr, "unexpected EOF\\n");
 			exit(1);
 		}
@@ -90,7 +95,7 @@ for (i = 0; i < height; i++) {
 		for (k = 0; k < 4; k++) {
 			rgba[k] = htons(rgba[k]);
 		}
-		if (fwrite(rgba, 4, sizeof(uint16_t), outfile) != 4) {
+		if (fwrite(rgba, sizeof(uint16_t), 4, outfile) != 4) {
 			fprintf(stderr, "write error\\n");
 			exit(1);
 		}
