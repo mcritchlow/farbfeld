@@ -19,21 +19,21 @@ clean:
 
 install: all
 	@echo installing into ${DESTDIR}${PREFIX}/bin
-	@mkdir -p ${DESTDIR}${PREFIX}/bin
-	@cp -f 2ff ${BIN} ${DESTDIR}${PREFIX}/bin
-	@echo installing manpages into ${DESTDIR}${MANPREFIX}	
-	@mkdir -p $(DESTDIR)$(MANPREFIX)/man1
-	@cp -f $(MAN1) $(DESTDIR)$(MANPREFIX)/man1
-	@cd $(DESTDIR)$(MANPREFIX)/man1 && chmod 644 $(MAN1)
-	@mkdir -p $(DESTDIR)$(MANPREFIX)/man5
-	@cp -f $(MAN5) $(DESTDIR)$(MANPREFIX)/man5
-	@cd $(DESTDIR)$(MANPREFIX)/man5 && chmod 644 $(MAN5)
+	@mkdir -p "${DESTDIR}${PREFIX}/bin"
+	@cp -f 2ff ${BIN} "${DESTDIR}${PREFIX}/bin"
+	@echo installing manpages into ${DESTDIR}${MANPREFIX}
+	@mkdir -p "$(DESTDIR)$(MANPREFIX)/man1"
+	@cp -f $(MAN1) "$(DESTDIR)$(MANPREFIX)/man1"
+	@cd "$(DESTDIR)$(MANPREFIX)/man1" && chmod 644 $(MAN1)
+	@mkdir -p "$(DESTDIR)$(MANPREFIX)/man5"
+	@cp -f $(MAN5) "$(DESTDIR)$(MANPREFIX)/man5"
+	@cd "$(DESTDIR)$(MANPREFIX)/man5" && chmod 644 $(MAN5)
 
 uninstall:
 	@echo removing from ${DESTDIR}${PREFIX}/bin
-	@cd ${DESTDIR}${PREFIX}/bin && rm -f 2ff ${BIN}
+	@cd "${DESTDIR}${PREFIX}/bin" && rm -f 2ff ${BIN}
 	@echo removing manpages from ${DESTDIR}${MANPREFIX}
-	@cd ${DESTDIR}${MANPREFIX}/man1 && rm -f $(MAN1)
-	@cd ${DESTDIR}${MANPREFIX}/man5 && rm -f $(MAN5)
+	@cd "${DESTDIR}${MANPREFIX}/man1" && rm -f $(MAN1)
+	@cd "${DESTDIR}${MANPREFIX}/man5" && rm -f $(MAN5)
 
 .PHONY: all clean install uninstall
