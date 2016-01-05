@@ -45,8 +45,8 @@ and inherent complexity involved in handling common image formats
 (PNG, JPEG, GIF,...), having to rely on bloated libraries not being able
 to focus on the task at hand for a given problem.
 .Sh EXAMPLES
-Below is an example for a color inverter. No external libraries other
-than libc are needed to read the image data:
+Below is an example for a color inverter usable in a pipeline. No external
+libraries other than libc are needed to handle the image data:
 .Bd -literal -offset left
 #include <arpa/inet.h>
 
@@ -55,49 +55,58 @@ than libc are needed to read the image data:
 #include <stdlib.h>
 #include <string.h>
 
-(...)
+int
+main(int argc, char *argv[])
+{
+	uint32_t width, height, i, j, k;
+	uint16_t rgba[4];
+	uint8_t hdr[strlen("farbfeld") + 2 * sizeof(uint32_t)];
 
-uint32_t width, height, i, j, k;
-uint16_t rgba[4];
-uint8_t hdr[strlen("farbfeld") + 2 * sizeof(uint32_t)];
+	if (argc > 1) {
+		fprintf(stderr, "usage: %s\\n", argv[0]);
+		exit(1);
+	}
 
-if (fread(hdr, 1, sizeof(hdr), infile) != sizeof(hdr)) {
-	fprintf(stderr, "incomplete header\\n");
-	exit(1);
-}
-if (memcmp("farbfeld", hdr, strlen("farbfeld"))) {
-	fprintf(stderr, "invalid magic\\n");
-	exit(1);
-}
-width = ntohl(*((uint32_t *)(hdr + 8)));
-height = ntohl(*((uint32_t *)(hdr + 12)));
+	if (fread(hdr, 1, sizeof(hdr), stdin) != sizeof(hdr)) {
+		fprintf(stderr, "incomplete header\\n");
+		exit(1);
+	}
+	if (memcmp("farbfeld", hdr, strlen("farbfeld"))) {
+		fprintf(stderr, "invalid magic\\n");
+		exit(1);
+	}
+	width = ntohl(*((uint32_t *)(hdr + 8)));
+	height = ntohl(*((uint32_t *)(hdr + 12)));
 
-if (fwrite(hdr, 1, sizeof(hdr), outfile) != sizeof(hdr)) {
-	fprintf(stderr, "write error\\n");
-	exit(1);
-}
+	if (fwrite(hdr, 1, sizeof(hdr), stdout) != sizeof(hdr)) {
+		fprintf(stderr, "write error\\n");
+		exit(1);
+	}
 
-for (i = 0; i < height; i++) {
-	for (j = 0; j < width; j++) {
-		if (fread(rgba, sizeof(uint16_t), 4, infile) != 4) {
-			fprintf(stderr, "unexpected EOF\\n");
-			exit(1);
-		}
-		for (k = 0; k < 4; k++) {
-			rgba[k] = ntohs(rgba[k]);
-		}
+	for (i = 0; i < height; i++) {
+		for (j = 0; j < width; j++) {
+			if (fread(rgba, sizeof(uint16_t), 4,
+			          stdin) != 4) {
+				fprintf(stderr, "unexpected EOF\\n");
+				exit(1);
+			}
+			for (k = 0; k < 4; k++) {
+				rgba[k] = ntohs(rgba[k]);
+			}
 
-		/* invert colors */
-		rgba[0] = 65535 - rgba[0];
-		rgba[1] = 65535 - rgba[1];
-		rgba[2] = 65535 - rgba[2];
+			/* invert colors */
+			rgba[0] = 65535 - rgba[0];
+			rgba[1] = 65535 - rgba[1];
+			rgba[2] = 65535 - rgba[2];
 
-		for (k = 0; k < 4; k++) {
-			rgba[k] = htons(rgba[k]);
-		}
-		if (fwrite(rgba, sizeof(uint16_t), 4, outfile) != 4) {
-			fprintf(stderr, "write error\\n");
-			exit(1);
+			for (k = 0; k < 4; k++) {
+				rgba[k] = htons(rgba[k]);
+			}
+			if (fwrite(rgba, sizeof(uint16_t), 4,
+			           stdout) != 4) {
+				fprintf(stderr, "write error\\n");
+				exit(1);
+			}
 		}
 	}
 }
