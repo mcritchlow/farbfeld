@@ -3,7 +3,10 @@
 
 include config.mk
 
-SRC = png2ff.c ff2png.c jpg2ff.c
+BIN = png2ff ff2png jpg2ff
+SRC = $(BIN:=.c)
+MAN1 = 2ff.1 $(BIN:=.1)
+MAN5 = farbfeld.5
 
 all: png2ff ff2png jpg2ff
 
@@ -12,16 +15,28 @@ all: png2ff ff2png jpg2ff
 	@${CC} -o $@ ${CFLAGS} ${LIBS} ${LDFLAGS} $<
 
 clean:
-	rm -f png2ff ff2png jpg2ff
+	rm -f ${BIN}
 
 install:
 	@echo installing into ${DESTDIR}${PREFIX}/bin
 	@mkdir -p ${DESTDIR}${PREFIX}/bin
-	@cp -f jpg2ff png2ff ff2png 2ff ${DESTDIR}${PREFIX}/bin
+	@cp -f 2ff ${BIN} ${DESTDIR}${PREFIX}/bin
+	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
+	@cp -f $(MAN1) $(DESTDIR)$(MANPREFIX)/man1
+	cd $(DESTDIR)$(MANPREFIX)/man1 && chmod 644 $(MAN1)
+	mkdir -p $(DESTDIR)$(MANPREFIX)/man5
+	@cp -f $(MAN5) $(DESTDIR)$(MANPREFIX)/man5
+	cd $(DESTDIR)$(MANPREFIX)/man5 && chmod 644 $(MAN5)
 
 uninstall:
 	@echo removing from ${DESTDIR}${PREFIX}/bin
-	@rm -f ${DESTDIR}${PREFIX}/bin/png2ff
-	@rm -f ${DESTDIR}${PREFIX}/bin/ff2png
+	cd ${DESTDIR}${PREFIX}/bin
+	@rm -f 2ff ${BIN}
+	@echo removing from ${DESTDIR}${MANPREFIX}/man1
+	cd ${DESTDIR}${MANPREFIX}/man1
+	@rm -f $(MAN1)
+	@echo removing from ${DESTDIR}${MANPREFIX}/man5
+	cd ${DESTDIR}${MANPREFIX}/man5
+	@rm -f $(MAN5)
 
 .PHONY: all clean install uninstall

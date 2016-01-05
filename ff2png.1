@@ -1,0 +1,42 @@
+.Dd 2016-01-05
+.Dt FF2PNG 1
+.Os suckless.org
+.Sh NAME
+.Nm ff2png
+.Nd convert farbfeld to PNG
+.Sh SYNOPSIS
+.Nm
+.Sh DESCRIPTION
+.Nm
+reads a
+.Xr farbfeld 5
+image from stdin, converts it to a 16-Bit RGBA PNG and writes the result
+to stdout.
+.Pp
+In case of an error
+.Nm
+writes a diagnostic message to stderr.
+.Sh EXIT STATUS
+.Bl -tag -width Ds
+.It 0
+Image processed successfully.
+.It 1
+An error occurred.
+.El
+.Sh EXAMPLES
+$
+.Nm
+< image.ff > image.png
+.Pp
+$ bunzip2 < image.ff.bz2 |
+.Nm
+> image.png
+.Sh SEE ALSO
+.Xr 2ff 1 ,
+.Xr bunzip2 1 ,
+.Xr bzip2 1 ,
+.Xr jpg2ff 1 ,
+.Xr png2ff 1 ,
+.Xr farbfeld 5
+.Sh AUTHORS
+.An Laslo Hunhold Aq Mt dev@frign.de
