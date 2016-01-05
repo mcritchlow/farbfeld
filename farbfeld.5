@@ -64,23 +64,23 @@ main(int argc, char *argv[])
 
 	if (argc > 1) {
 		fprintf(stderr, "usage: %s\\n", argv[0]);
-		exit(1);
+		return 1;
 	}
 
 	if (fread(hdr, 1, sizeof(hdr), stdin) != sizeof(hdr)) {
 		fprintf(stderr, "incomplete header\\n");
-		exit(1);
+		return 1;
 	}
 	if (memcmp("farbfeld", hdr, strlen("farbfeld"))) {
 		fprintf(stderr, "invalid magic\\n");
-		exit(1);
+		return 1;
 	}
 	width = ntohl(*((uint32_t *)(hdr + 8)));
 	height = ntohl(*((uint32_t *)(hdr + 12)));
 
 	if (fwrite(hdr, 1, sizeof(hdr), stdout) != sizeof(hdr)) {
 		fprintf(stderr, "write error\\n");
-		exit(1);
+		return 1;
 	}
 
 	for (i = 0; i < height; i++) {
@@ -88,7 +88,7 @@ main(int argc, char *argv[])
 			if (fread(rgba, sizeof(uint16_t), 4,
 			          stdin) != 4) {
 				fprintf(stderr, "unexpected EOF\\n");
-				exit(1);
+				return 1;
 			}
 			for (k = 0; k < 4; k++) {
 				rgba[k] = ntohs(rgba[k]);
@@ -105,10 +105,12 @@ main(int argc, char *argv[])
 			if (fwrite(rgba, sizeof(uint16_t), 4,
 			           stdout) != 4) {
 				fprintf(stderr, "write error\\n");
-				exit(1);
+				return 1;
 			}
 		}
 	}
+
+	return 0;
 }
 .Ed
 .Sh SEE ALSO
