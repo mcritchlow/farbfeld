@@ -2,15 +2,16 @@
 
 # paths
 PREFIX = /usr/local
+MANPREFIX = $(PREFIX)/share/man
 
 PNGLIB = /usr/local/lib
 PNGINC = /usr/local/include
 
-JPEGLIB = /usr/local/lib
-JPEGINC = /usr/local/include
+JPGLIB = /usr/local/lib
+JPGINC = /usr/local/include
 
-INCS = -I${PNGINC} -I${JPEGINC}
-LIBS = -L${PNGLIB} -L${JPEGLIB} -lpng -ljpeg
+INCS = -I${PNGINC} -I${JPGINC}
+LIBS = -L${PNGLIB} -L${JPGLIB} -lpng -ljpeg
 
 # flags
 CPPFLAGS = -D_DEFAULT_SOURCE
