@@ -88,7 +88,7 @@ main(int argc, char *argv[])
 
 		/* write data */
 		if (fwrite(ff_row, 1, ff_row_len, stdout) != ff_row_len) {
-			fprintf(stderr, "%s: fwrite: ");
+			fprintf(stderr, "%s: fwrite: ", argv[0]);
 			perror(NULL);
 			goto cleanup;
 		}
