@@ -2,6 +2,7 @@
 #include <arpa/inet.h>
 
 #include <errno.h>
+#include <setjmp.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,8 +60,7 @@ main(int argc, char *argv[])
 	/* write rows */
 	png_row_len = strlen("RGBA") * width * sizeof(uint16_t);
 	if (!(png_row = malloc(png_row_len))) {
-		fprintf(stderr, "%s: malloc: ", argv[0]);
-		perror(NULL);
+		fprintf(stderr, "%s: malloc: out of memory\n", argv[0]);
 		return 1;
 	}
 	for (i = 0; i < height; ++i) {

@@ -2,6 +2,7 @@
 #include <arpa/inet.h>
 
 #include <errno.h>
+#include <setjmp.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
