@@ -2,7 +2,7 @@
 
 # paths
 PREFIX = /usr/local
-MANPREFIX = ${PREFIX}/share/man
+MANPREFIX = ${PREFIX}/man
 
 PNGLIB = /usr/local/lib
 PNGINC = /usr/local/include
