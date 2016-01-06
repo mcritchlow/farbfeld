@@ -1,3 +1,4 @@
+# farbfeld - suckless image format with conversion tools
 # See LICENSE file for copyright and license details
 include config.mk
 
@@ -13,7 +14,17 @@ all: png2ff ff2png jpg2ff
 	@${CC} -o $@ ${CFLAGS} ${LIBS} ${LDFLAGS} $<
 
 clean:
-	rm -f ${BIN}
+	@echo cleaning
+	@rm -f ${BIN}
+
+dist: clean
+	@echo creating dist tarball
+	@mkdir -p farbfeld-${VERSION}
+	@cp -R FORMAT LICENSE Makefile README TODO config.mk \
+		2ff ${SRC} ${MAN1} ${MAN5} farbfeld-${VERSION}
+	@tar -cf farbfeld-${VERSION}.tar farbfeld-${VERSION}
+	@gzip farbfeld-${VERSION}.tar
+	@rm -rf farbfeld-${VERSION}
 
 install: all
 	@echo installing into ${DESTDIR}${PREFIX}/bin

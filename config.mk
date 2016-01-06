@@ -1,3 +1,6 @@
+# farbfeld version
+VERSION = 1
+
 # Customize below to fit your system
 
 # paths
