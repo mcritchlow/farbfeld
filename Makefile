@@ -45,4 +45,4 @@ uninstall:
 	@cd "${DESTDIR}${MANPREFIX}/man1" && rm -f ${MAN1}
 	@cd "${DESTDIR}${MANPREFIX}/man5" && rm -f ${MAN5}
 
-.PHONY: all clean install uninstall
+.PHONY: all clean dist install uninstall
