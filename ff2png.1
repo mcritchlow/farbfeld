@@ -1,4 +1,4 @@
-.Dd 2016-01-05
+.Dd 2016-01-17
 .Dt FF2PNG 1
 .Os suckless.org
 .Sh NAME
@@ -11,7 +11,8 @@
 reads a
 .Xr farbfeld 5
 image from stdin, converts it to a 16-Bit RGBA PNG and writes the result
-to stdout.
+to stdout. The resulting PNG is in ProPhoto RGB and has an according
+ICC profile attached to it.
 .Pp
 In case of an error
 .Nm
