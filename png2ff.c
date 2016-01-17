@@ -35,8 +35,8 @@ main(int argc, char *argv[])
 	cmsToneCurve *gamma18, *out_curves[3];
 	png_structp png_struct_p;
 	png_infop png_info_p;
-	png_bytepp png_row_p, icc_data = NULL;
-	png_charpp icc_name = NULL;
+	png_bytep *png_row_p, icc_data;
+	png_charp icc_name;
 	uint32_t width, height, icc_len, outrowlen, tmp32, r, i;
 	uint16_t *inrow, *outrow;
 	int icc_compression;
@@ -72,8 +72,8 @@ main(int argc, char *argv[])
 
 	/* icc profile (output ProPhoto RGB) */
 	if (png_get_valid(png_struct_p, png_info_p, PNG_INFO_iCCP)) {
-		png_get_iCCP(png_struct_p, png_info_p, icc_name,
-		             &icc_compression, icc_data, &icc_len);
+		png_get_iCCP(png_struct_p, png_info_p, &icc_name,
+		             &icc_compression, &icc_data, &icc_len);
 		if (!(in_profile = cmsOpenProfileFromMem(icc_data,
 		                                         icc_len)))
 			goto lcmserr;
