@@ -20,7 +20,6 @@ static cmsCIExyYTRIPLE primaries = {
 	{ 0.0366, 0.0001, 0.000086 }, /* blue  */
 };
 
-
 METHODDEF(void)
 jpeg_error(j_common_ptr cinfo)
 {
@@ -32,10 +31,11 @@ jpeg_error(j_common_ptr cinfo)
 int
 main(int argc, char *argv[])
 {
-	cmsHPROFILE in_profile, out_profile;
+	cmsHPROFILE in_profile = NULL, out_profile;
 	cmsHTRANSFORM transform;
 	cmsToneCurve *gamma18, *out_curves[3];
 	struct jpeg_decompress_struct cinfo;
+	jpeg_saved_marker_ptr marker;
 	struct jpeg_error_mgr jerr;
 	uint32_t width, height, val_be;
 	uint16_t *ff_row;
@@ -54,6 +54,10 @@ main(int argc, char *argv[])
 	jerr.error_exit = jpeg_error;
 
 	jpeg_create_decompress(&cinfo);
+
+	jpeg_save_markers(&cinfo, JPEG_APP0 + 1, 0xffff);  /* exif data */
+	jpeg_save_markers(&cinfo, JPEG_APP0 + 2, 0xffff);  /* icc data */
+
 	jpeg_stdio_src(&cinfo, stdin);
 
 	jpeg_read_header(&cinfo, TRUE);
@@ -63,6 +67,23 @@ main(int argc, char *argv[])
 	/* set output format */
 	cinfo.output_components = 3;     /* color components per pixel */
 	cinfo.out_color_space = JCS_RGB; /* input color space */
+
+	/* extract metadata */
+	marker = cinfo.marker_list;
+	for(; marker; marker = marker->next) {
+		if (!marker->data || !marker->data_length)
+			continue;
+		if (marker->marker == JPEG_APP0 + 1) {
+			/* exif data marker */
+			/* todo: Should we handle icc data from exif? */
+		} else if (marker->marker == JPEG_APP0 + 2) {
+			/* icc data marker */
+			if (!(in_profile = cmsOpenProfileFromMem(
+			                   marker->data + 14,
+			                   marker->data_length - 14)))
+				goto lcmserr;
+		}
+	}
 
 	jpeg_start_decompress(&cinfo);
 	jpeg_row_len = width * cinfo.output_components;
@@ -77,7 +98,7 @@ main(int argc, char *argv[])
 	}
 
 	/* icc profile (output ProPhoto RGB) */
-	if (!(in_profile = cmsCreate_sRGBProfile()))
+	if (!in_profile && !(in_profile = cmsCreate_sRGBProfile()))
 		goto lcmserr;
 	if (!(gamma18 = cmsBuildGamma(NULL, 1.8)))
 		goto lcmserr;
@@ -112,7 +133,7 @@ main(int argc, char *argv[])
 			ff_row[dx+3] = 65535;
 		}
 
-		cmsDoTransform(transform, ff_row, ff_row, ff_row_len);
+		cmsDoTransform(transform, ff_row, ff_row, ff_row_len / 4);
 
 		for (i = 0; i < ff_row_len; i++) {
 			/* re-add alpha */
