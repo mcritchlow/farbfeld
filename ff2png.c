@@ -23,7 +23,7 @@ static cmsCIExyYTRIPLE primaries = {
 };
 
 void
-pngerr(png_structp png_struct_p, png_const_charp msg)
+pngerr(png_structp pngs, const char *msg)
 {
 	fprintf(stderr, "%s: libpng: %s\n", argv0, msg);
 	exit(1);
@@ -33,14 +33,13 @@ int
 main(int argc, char *argv[])
 {
 	cmsContext icc_context;
-	cmsHPROFILE out_profile;
+	cmsHPROFILE out_prof;
 	cmsMLU *mlu1, *mlu2;
-	cmsToneCurve *gamma18, *out_curves[3];
-	png_structp png_struct_p;
-	png_infop png_info_p;
-	png_size_t png_row_len, j;
-	png_uint_32 width, height, i;
-	uint32_t icclen;
+	cmsToneCurve *gamma18, *out_curve[3];
+	png_structp pngs;
+	png_infop pngi;
+	size_t png_row_len, j;
+	uint32_t icclen, width, height, i;
 	uint16_t tmp16, *png_row;
 	uint8_t hdr[16], *icc;
 
@@ -68,42 +67,42 @@ main(int argc, char *argv[])
 		goto lcmserr;
 	if (!(gamma18 = cmsBuildGamma(icc_context, 1.8)))
 		goto lcmserr;
-	out_curves[0] = out_curves[1] = out_curves[2] = gamma18;
-	if (!(out_profile = cmsCreateRGBProfileTHR(icc_context, cmsD50_xyY(),
-	                                        &primaries, out_curves)))
+	out_curve[0] = out_curve[1] = out_curve[2] = gamma18;
+	if (!(out_prof = cmsCreateRGBProfileTHR(icc_context, cmsD50_xyY(),
+	                                        &primaries, out_curve)))
 		goto lcmserr;
-	cmsSetHeaderFlags(out_profile, cmsEmbeddedProfileTrue | cmsUseAnywhere);
-	cmsSetHeaderRenderingIntent(out_profile, INTENT_RELATIVE_COLORIMETRIC);
-	cmsSetDeviceClass(out_profile, cmsSigColorSpaceClass);
+	cmsSetHeaderFlags(out_prof, cmsEmbeddedProfileTrue | cmsUseAnywhere);
+	cmsSetHeaderRenderingIntent(out_prof, INTENT_RELATIVE_COLORIMETRIC);
+	cmsSetDeviceClass(out_prof, cmsSigColorSpaceClass);
 	if (!(mlu1 = cmsMLUalloc(NULL, 1)) || !(mlu2 = cmsMLUalloc(NULL, 1)))
 		goto lcmserr;
 	cmsMLUsetASCII(mlu1, "en", "US", "Public Domain");
-	cmsWriteTag(out_profile, cmsSigCopyrightTag, mlu1);
+	cmsWriteTag(out_prof, cmsSigCopyrightTag, mlu1);
 	cmsMLUsetASCII(mlu2, "en", "US", "ProPhoto RGB");
-	cmsWriteTag(out_profile, cmsSigProfileDescriptionTag, mlu2);
-	cmsWriteTag(out_profile, cmsSigDeviceModelDescTag, mlu2);
-	cmsSaveProfileToMem(out_profile, NULL, &icclen);
+	cmsWriteTag(out_prof, cmsSigProfileDescriptionTag, mlu2);
+	cmsWriteTag(out_prof, cmsSigDeviceModelDescTag, mlu2);
+	cmsSaveProfileToMem(out_prof, NULL, &icclen);
 	if (!(icc = malloc(icclen))) {
 		fprintf(stderr, "%s: malloc: out of memory\n", argv0);
 		return 1;
 	}
-	cmsSaveProfileToMem(out_profile, icc, &icclen);
+	cmsSaveProfileToMem(out_prof, icc, &icclen);
 
 	/* load png */
-	png_struct_p = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL,
-	                                       pngerr, NULL);
-	png_info_p = png_create_info_struct(png_struct_p);
+	pngs = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, pngerr,
+	                               NULL);
+	pngi = png_create_info_struct(pngs);
 
-	if (!png_struct_p || !png_info_p) {
+	if (!pngs || !pngi) {
 		fprintf(stderr, "%s: failed to initialize libpng\n", argv0);
 		return 1;
 	}
-	png_init_io(png_struct_p, stdout);
-	png_set_IHDR(png_struct_p, png_info_p, width, height, 16,
-	             PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
-	             PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-	png_set_iCCP(png_struct_p, png_info_p, "ProPhoto RGB", 0, icc, icclen);
-	png_write_info(png_struct_p, png_info_p);
+	png_init_io(pngs, stdout);
+	png_set_IHDR(pngs, pngi, width, height, 16, PNG_COLOR_TYPE_RGB_ALPHA,
+	             PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
+	             PNG_FILTER_TYPE_BASE);
+	png_set_iCCP(pngs, pngi, "ProPhoto RGB", 0, icc, icclen);
+	png_write_info(pngs, pngi);
 
 	/* write rows */
 	png_row_len = strlen("RGBA") * width * sizeof(uint16_t);
@@ -119,10 +118,10 @@ main(int argc, char *argv[])
 			}
 			png_row[j] = tmp16;
 		}
-		png_write_row(png_struct_p, (uint8_t *)png_row);
+		png_write_row(pngs, (uint8_t *)png_row);
 	}
-	png_write_end(png_struct_p, NULL);
-	png_destroy_write_struct(&png_struct_p, NULL);
+	png_write_end(pngs, NULL);
+	png_destroy_write_struct(&pngs, NULL);
 
 	return 0;
 lcmserr:

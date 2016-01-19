@@ -21,7 +21,7 @@ static cmsCIExyYTRIPLE primaries = {
 };
 
 void
-pngerr(png_structp png_struct_p, png_const_charp msg)
+pngerr(png_structp pngs, const char *msg)
 {
 	fprintf(stderr, "%s: libpng: %s\n", argv0, msg);
 	exit(1);
@@ -30,16 +30,16 @@ pngerr(png_structp png_struct_p, png_const_charp msg)
 int
 main(int argc, char *argv[])
 {
-	cmsHPROFILE in_profile, out_profile;
-	cmsHTRANSFORM transform;
+	cmsHPROFILE in_prof, out_prof;
+	cmsHTRANSFORM trans;
 	cmsToneCurve *gamma18, *out_curves[3];
-	png_structp png_struct_p;
-	png_infop png_info_p;
-	png_bytep *png_row_p, icc_data;
-	png_charp icc_name;
+	png_structp pngs;
+	png_infop pngi;
+	int icc_compression;
 	uint32_t width, height, icc_len, outrowlen, tmp32, r, i;
 	uint16_t *inrow, *outrow;
-	int icc_compression;
+	uint8_t **png_row_p, *icc_data;
+	char *icc_name;
 
 	argv0 = argv[0], argc--, argv++;
 
@@ -49,46 +49,46 @@ main(int argc, char *argv[])
 	}
 
 	/* load png */
-	png_struct_p = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL,
-	                                      pngerr, NULL);
-	png_info_p = png_create_info_struct(png_struct_p);
+	pngs = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, pngerr,
+	                              NULL);
+	pngi = png_create_info_struct(pngs);
 
-	if (!png_struct_p || !png_info_p) {
+	if (!pngs || !pngi) {
 		fprintf(stderr, "%s: failed to initialize libpng\n", argv0);
 		return 1;
 	}
-	png_init_io(png_struct_p, stdin);
-	if (png_get_valid(png_struct_p, png_info_p, PNG_INFO_tRNS))
-		png_set_tRNS_to_alpha(png_struct_p);
-	png_set_add_alpha(png_struct_p, 255*257, PNG_FILLER_AFTER);
-	png_set_expand_gray_1_2_4_to_8(png_struct_p);
-	png_set_gray_to_rgb(png_struct_p);
-	png_set_packing(png_struct_p);
-	png_read_png(png_struct_p, png_info_p, PNG_TRANSFORM_PACKING |
+	png_init_io(pngs, stdin);
+	if (png_get_valid(pngs, pngi, PNG_INFO_tRNS))
+		png_set_tRNS_to_alpha(pngs);
+	png_set_add_alpha(pngs, 255*257, PNG_FILLER_AFTER);
+	png_set_expand_gray_1_2_4_to_8(pngs);
+	png_set_gray_to_rgb(pngs);
+	png_set_packing(pngs);
+	png_read_png(pngs, pngi, PNG_TRANSFORM_PACKING |
 	             PNG_TRANSFORM_EXPAND, NULL);
-	width = png_get_image_width(png_struct_p, png_info_p);
-	height = png_get_image_height(png_struct_p, png_info_p);
-	png_row_p = png_get_rows(png_struct_p, png_info_p);
+	width = png_get_image_width(pngs, pngi);
+	height = png_get_image_height(pngs, pngi);
+	png_row_p = png_get_rows(pngs, pngi);
 
 	/* icc profile (output ProPhoto RGB) */
-	if (png_get_valid(png_struct_p, png_info_p, PNG_INFO_iCCP)) {
-		png_get_iCCP(png_struct_p, png_info_p, &icc_name,
+	if (png_get_valid(pngs, pngi, PNG_INFO_iCCP)) {
+		png_get_iCCP(pngs, pngi, &icc_name,
 		             &icc_compression, &icc_data, &icc_len);
-		if (!(in_profile = cmsOpenProfileFromMem(icc_data,
+		if (!(in_prof = cmsOpenProfileFromMem(icc_data,
 		                                         icc_len)))
 			goto lcmserr;
 	} else {
-		if (!(in_profile = cmsCreate_sRGBProfile()))
+		if (!(in_prof = cmsCreate_sRGBProfile()))
 			goto lcmserr;
 	}
 	if (!(gamma18 = cmsBuildGamma(NULL, 1.8)))
 		goto lcmserr;
 	out_curves[0] = out_curves[1] = out_curves[2] = gamma18;
-	if (!(out_profile = cmsCreateRGBProfile(cmsD50_xyY(), &primaries,
+	if (!(out_prof = cmsCreateRGBProfile(cmsD50_xyY(), &primaries,
 	                                        out_curves)))
 		goto lcmserr;
 
-	/* allocate row buffer */
+	/* allocate output row buffer */
 	outrowlen = width * strlen("RGBA");
 	if (!(outrow = malloc(outrowlen * sizeof(uint16_t)))) {
 		fprintf(stderr, "%s: malloc: out of memory\n", argv0);
@@ -105,14 +105,15 @@ main(int argc, char *argv[])
 		goto writerr;
 
 	/* write data */
-	switch(png_get_bit_depth(png_struct_p, png_info_p)) {
+	switch(png_get_bit_depth(pngs, pngi)) {
 	case 8:
-		if (!(transform = cmsCreateTransform(in_profile,
-		                  TYPE_RGBA_8, out_profile, TYPE_RGBA_16,
-		                  INTENT_RELATIVE_COLORIMETRIC, 0)))
+		if (!(trans = cmsCreateTransform(in_prof, TYPE_RGBA_8,
+		                                 out_prof, TYPE_RGBA_16,
+		                                 INTENT_RELATIVE_COLORIMETRIC,
+		                                 0)))
 			goto lcmserr;
 		for (r = 0; r < height; ++r) {
-			cmsDoTransform(transform, png_row_p[r], outrow, width);
+			cmsDoTransform(trans, png_row_p[r], outrow, width);
 			for (i = 0; i < outrowlen; i++) {
 				/* re-add alpha */
 				if (i >= 3 && (i - 3) % 4 == 0)
@@ -126,9 +127,10 @@ main(int argc, char *argv[])
 		}
 		break;
 	case 16:
-		if (!(transform = cmsCreateTransform(in_profile,
-		                  TYPE_RGBA_16, out_profile, TYPE_RGBA_16,
-		                  INTENT_RELATIVE_COLORIMETRIC, 0)))
+		if (!(trans = cmsCreateTransform(in_prof, TYPE_RGBA_16,
+		                                 out_prof, TYPE_RGBA_16,
+		                                 INTENT_RELATIVE_COLORIMETRIC,
+		                                 0)))
 			goto lcmserr;
 		for (r = 0; r < height; ++r) {
 			inrow = (uint16_t *)png_row_p[r];
@@ -136,7 +138,7 @@ main(int argc, char *argv[])
 				/* swap endianness to LE */
 				inrow[i] = ntohs(inrow[i]);
 			}
-			cmsDoTransform(transform, png_row_p[r], outrow, width);
+			cmsDoTransform(trans, png_row_p[r], outrow, width);
 			for (i = 0; i < outrowlen; ++i) {
 				/* re-add alpha */
 				if (i >= 3 && (i - 3) % 4 == 0)
@@ -154,7 +156,7 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
-	png_destroy_read_struct(&png_struct_p, &png_info_p, NULL);
+	png_destroy_read_struct(&pngs, &pngi, NULL);
 
 	return 0;
 writerr:
