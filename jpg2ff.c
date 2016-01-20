@@ -12,7 +12,7 @@
 
 static char *argv0;
 
-/* ProPhoto RGB */
+/* ROMM RGB primaries (ISO 22028-2:2013) */
 static cmsCIExyYTRIPLE primaries = {
 	/*     x,      y,        Y */
 	{ 0.7347, 0.2653, 0.288040 }, /* red   */
@@ -33,7 +33,7 @@ main(int argc, char *argv[])
 {
 	cmsHPROFILE in_profile = NULL, out_profile;
 	cmsHTRANSFORM transform;
-	cmsToneCurve *gamma18, *out_curves[3];
+	cmsToneCurve *gamma10, *out_curves[3];
 	struct jpeg_decompress_struct cinfo;
 	jpeg_saved_marker_ptr marker;
 	struct jpeg_error_mgr jerr;
@@ -97,12 +97,12 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
-	/* icc profile (output ProPhoto RGB) */
+	/* icc profile (output linear ROMM RGB (ISO 22028-2:2013)) */
 	if (!in_profile && !(in_profile = cmsCreate_sRGBProfile()))
 		goto lcmserr;
-	if (!(gamma18 = cmsBuildGamma(NULL, 1.8)))
+	if (!(gamma10 = cmsBuildGamma(NULL, 1.0)))
 		goto lcmserr;
-	out_curves[0] = out_curves[1] = out_curves[2] = gamma18;
+	out_curves[0] = out_curves[1] = out_curves[2] = gamma10;
 	if (!(out_profile = cmsCreateRGBProfile(cmsD50_xyY(), &primaries,
 	                                        out_curves)))
 		goto lcmserr;
