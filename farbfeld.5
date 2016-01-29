@@ -16,8 +16,9 @@ BYTES    DESCRIPTION
 4        32-Bit BE unsigned integer (width)
 4        32-Bit BE unsigned integer (height)
 [2222]   4*16-Bit BE unsigned integers [RGBA] / pixel
-         pixels in rows, ProPhoto RGB, not alpha-premultiplied
+         pixels in rows, not alpha-premultiplied
 .Ed
+The RGB-data should be in sRGB.
 .Sh USAGE
 .Nm
 provides

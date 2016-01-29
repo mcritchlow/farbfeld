@@ -13,11 +13,8 @@ PNGINC = /usr/local/include
 JPGLIB = /usr/local/lib
 JPGINC = /usr/local/include
 
-LCMSLIB = /usr/local/lib
-LCMSINC = /usr/local/include
-
-INCS = -I${PNGINC} -I${JPGINC} -I${LCMSINC}
-LIBS = -L${PNGLIB} -L${JPGLIB} -L${LCMSLIB} -lpng -ljpeg -llcms2
+INCS = -I${PNGINC} -I${JPGINC}
+LIBS = -L${PNGLIB} -L${JPGLIB} -lpng -ljpeg
 
 # flags
 CPPFLAGS = -D_DEFAULT_SOURCE

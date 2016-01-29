@@ -1,18 +1,15 @@
 
   FARBFELD IMAGE FORMAT SPECIFICATION
 
-  +--------+-----------------------------------------------+
-  | Bytes  | Description                                   |
-  +--------+-----------------------------------------------+
-  | 8      | "farbfeld" magic value                        |
-  +--------+-----------------------------------------------+
-  | 4      | 32-Bit BE unsigned integer (width)            |
-  +--------+-----------------------------------------------+
-  | 4      | 32-Bit BE unsigned integer (height)           |
-  +--------+-----------------------------------------------+
-  | [2222] | 4*16-Bit BE unsigned integers [RGBA] / pixel  |
-  |        |    - pixels in rows                           |
-  |        |    - linear ROMM RGB (ISO 22028-2:2013)       |
-  |        |         (= linear ProPhoto RGB = Melissa RGB) |
-  |        |    - no alpha premultiplication               |
-  +--------+-----------------------------------------------+
+  +--------+----------------------------------------------+
+  | Bytes  | Description                                  |
+  +--------+----------------------------------------------+
+  | 8      | "farbfeld" magic value                       |
+  +--------+----------------------------------------------+
+  | 4      | 32-Bit BE unsigned integer (width)           |
+  +--------+----------------------------------------------+
+  | 4      | 32-Bit BE unsigned integer (height)          |
+  +--------+----------------------------------------------+
+  | [2222] | 4*16-Bit BE unsigned integers [RGBA] / pixel |
+  |        | pixels in rows, not alpha-premultiplied      |
+  +--------+----------------------------------------------+
