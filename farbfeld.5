@@ -15,10 +15,10 @@ BYTES    DESCRIPTION
 8        "farbfeld" magic value
 4        32-Bit BE unsigned integer (width)
 4        32-Bit BE unsigned integer (height)
-[2222]   4*16-Bit BE unsigned integers [RGBA] / pixel
-         pixels in rows, not alpha-premultiplied
+[2222]   4*16-Bit BE unsigned integers [RGBA] / pixel, row-aligned
 .Ed
-The RGB-data should be in sRGB.
+The RGB-data should be sRGB for best interoperability and not
+alpha-premultiplied.
 .Sh USAGE
 .Nm
 provides
