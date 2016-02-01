@@ -12,22 +12,22 @@
 static char *argv0;
 
 METHODDEF(void)
-jpeg_error(j_common_ptr cinfo)
+jpeg_error(j_common_ptr js)
 {
 	fprintf(stderr, "%s: libjpeg: ", argv0);
-	(*cinfo->err->output_message)(cinfo);
+	(*js->err->output_message)(js);
 	exit(1);
 }
 
 int
 main(int argc, char *argv[])
 {
-	struct jpeg_decompress_struct cinfo;
+	struct jpeg_decompress_struct js;
 	struct jpeg_error_mgr jerr;
-	uint32_t width, height, val_be;
-	uint16_t *ff_row;
-	size_t jpeg_row_len, ff_row_len, i, dx, sx;
-	JSAMPARRAY buffer; /* output row buffer */
+	uint32_t width, height, tmp32;
+	uint16_t *row;
+	size_t rowlen, i;
+	JSAMPARRAY jpgrow;
 
 	argv0 = argv[0], argc--, argv++;
 
@@ -37,61 +37,63 @@ main(int argc, char *argv[])
 	}
 
 	/* load jpg */
-	cinfo.err = jpeg_std_error(&jerr);
+	js.err = jpeg_std_error(&jerr);
 	jerr.error_exit = jpeg_error;
 
-	jpeg_create_decompress(&cinfo);
+	jpeg_create_decompress(&js);
 
-	jpeg_stdio_src(&cinfo, stdin);
+	jpeg_stdio_src(&js, stdin);
 
-	jpeg_read_header(&cinfo, TRUE);
-	width = cinfo.image_width;
-	height = cinfo.image_height;
+	jpeg_read_header(&js, 1);
+	width = js.image_width;
+	height = js.image_height;
 
 	/* set output format */
-	cinfo.output_components = 3;     /* color components per pixel */
-	cinfo.out_color_space = JCS_RGB; /* input color space */
+	js.output_components = 3;     /* color components per pixel */
+	js.out_color_space = JCS_RGB; /* input color space */
 
-	jpeg_start_decompress(&cinfo);
-	jpeg_row_len = width * cinfo.output_components;
+	jpeg_start_decompress(&js);
 
 	/* create output buffers */
-	buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo,
-	                                    JPOOL_IMAGE, jpeg_row_len, 1);
-	ff_row_len = strlen("RGBA") * width;
-	if(!(ff_row = malloc(ff_row_len * sizeof(uint16_t)))) {
+	jpgrow = (*js.mem->alloc_sarray)((j_common_ptr)&js,
+	                                 JPOOL_IMAGE, width *
+	                                 js.output_components, 1);
+	rowlen = strlen("RGBA") * width;
+	if(!(row = malloc(rowlen * sizeof(uint16_t)))) {
 		fprintf(stderr, "%s: malloc: out of memory\n", argv0);
 		return 1;
 	}
 
 	/* write header */
 	fprintf(stdout, "farbfeld");
-	val_be = htonl(width);
-	if (fwrite(&val_be, sizeof(uint32_t), 1, stdout) != 1)
+	tmp32 = htonl(width);
+	if (fwrite(&tmp32, sizeof(uint32_t), 1, stdout) != 1)
 		goto writerr;
-	val_be = htonl(height);
-	if (fwrite(&val_be, sizeof(uint32_t), 1, stdout) != 1)
+	tmp32 = htonl(height);
+	if (fwrite(&tmp32, sizeof(uint32_t), 1, stdout) != 1)
 		goto writerr;
 
-	while (cinfo.output_scanline < cinfo.output_height) {
-		/* jpeg_read_scanlines expects an array of pointers to scanlines.
-		 * Here the array is only one element long, but you could ask for
-		 * more than one scanline at a time if that's more convenient. */
-		jpeg_read_scanlines(&cinfo, buffer, 1);
+	while (js.output_scanline < js.output_height) {
+		/* jpeg_read_scanlines expects an array of pointers to
+		 * scanlines.
+		 * Here the array is only one element long, but you could
+		 * ask for more than one scanline at a time if that's more
+		 * convenient. */
+		jpeg_read_scanlines(&js, jpgrow, 1);
 
-		for (i = 0, dx = 0, sx = 0; i < width; i++, sx += 3, dx += 4) {
-			ff_row[dx]   = htons(buffer[0][sx]   * 257);
-			ff_row[dx+1] = htons(buffer[0][sx+1] * 257);
-			ff_row[dx+2] = htons(buffer[0][sx+2] * 257);
-			ff_row[dx+3] = htons(65535);
+		for (i = 0; i < width; ++i) {
+			row[4*i + 0] = htons(jpgrow[0][3*i + 0] * 257);
+			row[4*i + 1] = htons(jpgrow[0][3*i + 1] * 257);
+			row[4*i + 2] = htons(jpgrow[0][3*i + 2] * 257);
+			row[4*i + 3] = htons(65535);
 		}
 
 		/* write data */
-		if (fwrite(ff_row, 2, ff_row_len, stdout) != ff_row_len)
+		if (fwrite(row, 2, rowlen, stdout) != rowlen)
 			goto writerr;
 	}
-	jpeg_finish_decompress(&cinfo);
-	jpeg_destroy_decompress(&cinfo);
+	jpeg_finish_decompress(&js);
+	jpeg_destroy_decompress(&js);
 
 	return 0;
 writerr:

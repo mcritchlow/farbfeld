@@ -23,9 +23,9 @@ main(int argc, char *argv[])
 {
 	png_structp pngs;
 	png_infop pngi;
-	uint32_t width, height, outrowlen, tmp32, r, i;
-	uint16_t *outrow;
-	uint8_t **png_row_p;
+	uint32_t width, height, rowlen, tmp32, r, i;
+	uint16_t *row;
+	uint8_t **pngrows;
 
 	argv0 = argv[0], argc--, argv++;
 
@@ -54,15 +54,13 @@ main(int argc, char *argv[])
 	             PNG_TRANSFORM_EXPAND, NULL);
 	width = png_get_image_width(pngs, pngi);
 	height = png_get_image_height(pngs, pngi);
-	png_row_p = png_get_rows(pngs, pngi);
-
+	pngrows = png_get_rows(pngs, pngi);
 	/* allocate output row buffer */
-	outrowlen = width * strlen("RGBA");
-	if (!(outrow = malloc(outrowlen * sizeof(uint16_t)))) {
+	rowlen = width * strlen("RGBA");
+	if (!(row = malloc(rowlen * sizeof(uint16_t)))) {
 		fprintf(stderr, "%s: malloc: out of memory\n", argv0);
 		return 1;
 	}
-
 	/* write header */
 	fputs("farbfeld", stdout);
 	tmp32 = htonl(width);
@@ -71,27 +69,23 @@ main(int argc, char *argv[])
 	tmp32 = htonl(height);
 	if (fwrite(&tmp32, sizeof(uint32_t), 1, stdout) != 1)
 		goto writerr;
-
 	/* write data */
 	switch(png_get_bit_depth(pngs, pngi)) {
 	case 8:
 		for (r = 0; r < height; ++r) {
-			for (i = 0; i < outrowlen; i++) {
-				outrow[i] = htons(257 * png_row_p[r][i]);
+			for (i = 0; i < rowlen; i++) {
+				row[i] = htons(257 * pngrows[r][i]);
 			}
-			if (fwrite(outrow, sizeof(uint16_t), outrowlen,
-			           stdout) != outrowlen) {
+			if (fwrite(row, sizeof(uint16_t), rowlen,
+			           stdout) != rowlen) {
 				goto writerr;
 			}
 		}
 		break;
 	case 16:
 		for (r = 0; r < height; ++r) {
-			for (i = 0; i < outrowlen; ++i) {
-				outrow[i] = ((uint16_t *)png_row_p[r])[i];
-			}
-			if (fwrite(outrow, sizeof(uint16_t), outrowlen,
-			           stdout) != outrowlen) {
+			if (fwrite(pngrows[r], sizeof(uint16_t),
+			           rowlen, stdout) != rowlen) {
 				goto writerr;
 			}
 		}

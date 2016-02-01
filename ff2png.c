@@ -9,7 +9,7 @@
 
 #include <png.h>
 
-#define HEADER "farbfeld########"
+#define HDR "farbfeld########"
 
 static char *argv0;
 
@@ -25,9 +25,9 @@ main(int argc, char *argv[])
 {
 	png_structp pngs;
 	png_infop pngi;
-	size_t png_row_len, j;
+	size_t rowlen;
 	uint32_t width, height, i;
-	uint16_t tmp16, *png_row;
+	uint16_t *row;
 	uint8_t hdr[16];
 
 	argv0 = argv[0], argc--, argv++;
@@ -38,11 +38,10 @@ main(int argc, char *argv[])
 	}
 
 	/* header */
-	if (fread(hdr, 1, strlen(HEADER), stdin) != strlen(HEADER)) {
-		fprintf(stderr, "%s: incomplete header\n", argv0);
-		return 1;
+	if (fread(hdr, 1, sizeof(HDR) - 1, stdin) != sizeof(HDR) - 1) {
+		goto readerr;
 	}
-	if (memcmp("farbfeld", hdr, strlen("farbfeld"))) {
+	if (memcmp("farbfeld", hdr, sizeof("farbfeld") - 1)) {
 		fprintf(stderr, "%s: invalid magic value\n", argv0);
 		return 1;
 	}
@@ -65,23 +64,24 @@ main(int argc, char *argv[])
 	png_write_info(pngs, pngi);
 
 	/* write rows */
-	png_row_len = strlen("RGBA") * width * sizeof(uint16_t);
-	if (!(png_row = malloc(png_row_len))) {
+	rowlen = (sizeof("RGBA") - 1) * width;
+	if (!(row = malloc(rowlen * sizeof(uint16_t)))) {
 		fprintf(stderr, "%s: malloc: out of memory\n", argv0);
 		return 1;
 	}
 	for (i = 0; i < height; ++i) {
-		for (j = 0; j < png_row_len / sizeof(uint16_t); ++j) {
-			if (fread(&tmp16, sizeof(uint16_t), 1, stdin) != 1) {
-				fprintf(stderr, "%s: unexpected EOF\n", argv0);
-				return 1;
-			}
-			png_row[j] = tmp16;
+		if (fread(row, sizeof(uint16_t), rowlen, stdin) != rowlen) {
+			goto readerr;
 		}
-		png_write_row(pngs, (uint8_t *)png_row);
+		png_write_row(pngs, (uint8_t *)row);
 	}
 	png_write_end(pngs, NULL);
 	png_destroy_write_struct(&pngs, NULL);
 
 	return 0;
+readerr:
+	fprintf(stderr, "%s: fread: ", argv0);
+	perror(NULL);
+
+	return 1;
 }
