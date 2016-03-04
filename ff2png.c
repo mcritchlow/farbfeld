@@ -9,8 +9,6 @@
 
 #include <png.h>
 
-#define HDR "farbfeld########"
-
 static char *argv0;
 
 void
@@ -26,9 +24,8 @@ main(int argc, char *argv[])
 	png_structp pngs;
 	png_infop pngi;
 	size_t rowlen;
-	uint32_t width, height, i;
+	uint32_t hdr[4], width, height, i;
 	uint16_t *row;
-	uint8_t hdr[16];
 
 	argv0 = argv[0], argc--, argv++;
 
@@ -38,15 +35,15 @@ main(int argc, char *argv[])
 	}
 
 	/* header */
-	if (fread(hdr, 1, sizeof(HDR) - 1, stdin) != sizeof(HDR) - 1) {
+	if (fread(hdr, sizeof(*hdr), 4, stdin) != 4) {
 		goto readerr;
 	}
 	if (memcmp("farbfeld", hdr, sizeof("farbfeld") - 1)) {
 		fprintf(stderr, "%s: invalid magic value\n", argv0);
 		return 1;
 	}
-	width = ntohl(*((uint32_t *)(hdr + 8)));
-	height = ntohl(*((uint32_t *)(hdr + 12)));
+	width = ntohl(hdr[2]);
+	height = ntohl(hdr[3]);
 
 	/* load png */
 	pngs = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, pngerr,
