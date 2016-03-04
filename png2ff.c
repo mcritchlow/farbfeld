@@ -55,12 +55,14 @@ main(int argc, char *argv[])
 	width = png_get_image_width(pngs, pngi);
 	height = png_get_image_height(pngs, pngi);
 	pngrows = png_get_rows(pngs, pngi);
+
 	/* allocate output row buffer */
 	rowlen = width * strlen("RGBA");
 	if (!(row = malloc(rowlen * sizeof(uint16_t)))) {
 		fprintf(stderr, "%s: malloc: out of memory\n", argv0);
 		return 1;
 	}
+
 	/* write header */
 	fputs("farbfeld", stdout);
 	tmp32 = htonl(width);
@@ -69,6 +71,7 @@ main(int argc, char *argv[])
 	tmp32 = htonl(height);
 	if (fwrite(&tmp32, sizeof(uint32_t), 1, stdout) != 1)
 		goto writerr;
+
 	/* write data */
 	switch(png_get_bit_depth(pngs, pngi)) {
 	case 8:
