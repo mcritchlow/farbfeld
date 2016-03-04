@@ -31,7 +31,7 @@ main(int argc, char *argv[])
 
 	argv0 = argv[0], argc--, argv++;
 
-	if (argc > 1) {
+	if (argc) {
 		fprintf(stderr, "usage: %s\n", argv0);
 		return 1;
 	}
@@ -65,7 +65,7 @@ main(int argc, char *argv[])
 	}
 
 	/* write header */
-	fprintf(stdout, "farbfeld");
+	fputs("farbfeld", stdout);
 	tmp32 = htonl(width);
 	if (fwrite(&tmp32, sizeof(uint32_t), 1, stdout) != 1)
 		goto writerr;
