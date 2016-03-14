@@ -1,5 +1,5 @@
 # farbfeld version
-VERSION = 1
+VERSION = 2
 
 # Customize below to fit your system
 
