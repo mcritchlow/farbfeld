@@ -5,7 +5,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include <jpeglib.h>
 
@@ -58,7 +57,7 @@ main(int argc, char *argv[])
 	jpgrow = (*js.mem->alloc_sarray)((j_common_ptr)&js,
 	                                 JPOOL_IMAGE, width *
 	                                 js.output_components, 1);
-	rowlen = strlen("RGBA") * width;
+	rowlen = width * (sizeof("RGBA") - 1);
 	if(!(row = malloc(rowlen * sizeof(uint16_t)))) {
 		fprintf(stderr, "%s: malloc: out of memory\n", argv0);
 		return 1;
@@ -89,7 +88,7 @@ main(int argc, char *argv[])
 		}
 
 		/* write data */
-		if (fwrite(row, 2, rowlen, stdout) != rowlen)
+		if (fwrite(row, sizeof(uint16_t), rowlen, stdout) != rowlen)
 			goto writerr;
 	}
 	jpeg_finish_decompress(&js);

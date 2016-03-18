@@ -5,7 +5,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include <png.h>
 
@@ -57,7 +56,11 @@ main(int argc, char *argv[])
 	pngrows = png_get_rows(pngs, pngi);
 
 	/* allocate output row buffer */
-	rowlen = width * strlen("RGBA");
+	if (width > SIZE_MAX / ((sizeof("RGBA") - 1) * sizeof(uint16_t))) {
+		fprintf(stderr, "%s: row length integer overflow\n", argv0);
+		return 1;
+	}
+	rowlen = width * (sizeof("RGBA") - 1);
 	if (!(row = malloc(rowlen * sizeof(uint16_t)))) {
 		fprintf(stderr, "%s: malloc: out of memory\n", argv0);
 		return 1;
@@ -87,8 +90,8 @@ main(int argc, char *argv[])
 		break;
 	case 16:
 		for (r = 0; r < height; ++r) {
-			if (fwrite(pngrows[r], sizeof(uint16_t),
-			           rowlen, stdout) != rowlen) {
+			if (fwrite(pngrows[r], sizeof(uint16_t), rowlen,
+			           stdout) != rowlen) {
 				goto writerr;
 			}
 		}

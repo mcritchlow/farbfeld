@@ -61,7 +61,11 @@ main(int argc, char *argv[])
 	png_write_info(pngs, pngi);
 
 	/* write rows */
-	rowlen = (sizeof("RGBA") - 1) * width;
+	if (width > SIZE_MAX / ((sizeof("RGBA") - 1) * sizeof(uint16_t))) {
+		fprintf(stderr, "%s: row length integer overflow\n", argv0);
+		return 1;
+	}
+	rowlen = width * (sizeof("RGBA") - 1);
 	if (!(row = malloc(rowlen * sizeof(uint16_t)))) {
 		fprintf(stderr, "%s: malloc: out of memory\n", argv0);
 		return 1;
