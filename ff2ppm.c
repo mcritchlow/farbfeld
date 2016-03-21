@@ -84,7 +84,7 @@ main(int argc, char *argv[])
 		fprintf(stderr, "%s: malloc: %s\n", argv0, strerror(errno));
 		return 1;
 	}
-	if (!(rowout = malloc(width * (sizeof("RGB") - 1) * sizeof(uint16_t)))) {
+	if (!(rowout = malloc(width * (sizeof("RGB") - 1) * sizeof(uint8_t)))) {
 		fprintf(stderr, "%s: malloc: %s\n", argv0, strerror(errno));
 		return 1;
 	}
