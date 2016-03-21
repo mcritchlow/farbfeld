@@ -2,12 +2,13 @@
 # See LICENSE file for copyright and license details
 include config.mk
 
-BIN = png2ff ff2png jpg2ff
+BIN = png2ff ff2png jpg2ff ff2ppm
 SRC = ${BIN:=.c}
+HDR = arg.h
 MAN1 = 2ff.1 ${BIN:=.1}
 MAN5 = farbfeld.5
 
-all: png2ff ff2png jpg2ff
+all: png2ff ff2png jpg2ff ff2ppm
 
 .c:
 	@echo CC $<
@@ -21,7 +22,7 @@ dist: clean
 	@echo creating dist tarball
 	@mkdir -p farbfeld-${VERSION}
 	@cp -R FORMAT LICENSE Makefile README TODO config.mk \
-		2ff ${SRC} ${MAN1} ${MAN5} farbfeld-${VERSION}
+		2ff ${HDR} ${SRC} ${MAN1} ${MAN5} farbfeld-${VERSION}
 	@tar -cf farbfeld-${VERSION}.tar farbfeld-${VERSION}
 	@gzip farbfeld-${VERSION}.tar
 	@rm -rf farbfeld-${VERSION}
