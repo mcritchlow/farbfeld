@@ -74,17 +74,17 @@ main(int argc, char *argv[])
 		fprintf(stderr, "%s: invalid height: zero\n", argv0);
 		return 1;
 	}
+
 	if (width > SIZE_MAX / ((sizeof("RGBA") - 1) * sizeof(uint16_t))) {
 		fprintf(stderr, "%s: row length integer overflow\n", argv0);
 		return 1;
 	}
-
 	rowlen = width * (sizeof("RGBA") - 1);
 	if (!(row = malloc(rowlen * sizeof(uint16_t)))) {
 		fprintf(stderr, "%s: malloc: %s\n", argv0, strerror(errno));
 		return 1;
 	}
-	if (!(rowout = malloc(width * sizeof("RGB") - 1))) {
+	if (!(rowout = malloc(width * (sizeof("RGB") - 1) * sizeof(uint16_t)))) {
 		fprintf(stderr, "%s: malloc: %s\n", argv0, strerror(errno));
 		return 1;
 	}
