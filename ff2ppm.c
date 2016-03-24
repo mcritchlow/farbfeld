@@ -41,7 +41,7 @@ main(int argc, char *argv[])
 		if (collen != 3 && collen != 6 && collen != 12) {
 			usage();
 		}
-		colfmt[1] = colfmt[4] = colfmt[7] = ((collen / 3) - '0');
+		colfmt[1] = colfmt[4] = colfmt[7] = ((collen / 3) + '0');
 		if (sscanf(color, colfmt, col, col + 1, col + 2) != 3) {
 			usage();
 		}
@@ -50,6 +50,7 @@ main(int argc, char *argv[])
 		for (i = 0; i < 3; i++) {
 			mask[i] = col[i] * colfac;
 		}
+		break;
 	default:
 		usage();
 	} ARGEND
