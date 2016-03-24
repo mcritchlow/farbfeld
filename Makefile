@@ -8,11 +8,21 @@ HDR = arg.h
 MAN1 = 2ff.1 ${BIN:=.1}
 MAN5 = farbfeld.5
 
-all: png2ff ff2png jpg2ff ff2ppm
+all: ${BIN}
+
+png2ff ff2png:
+	@echo CC $@
+	@${CC} -o $@ ${CFLAGS} ${CPPFLAGS} -L${PNGLIB} -lpng -I${PNGINC} \
+		${LDFLAGS} $@.c
+
+jpg2ff:
+	@echo CC $@
+	@${CC} -o $@ ${CFLAGS} ${CPPFLAGS} -L${JPGLIB} -ljpeg -I${JPGINC} \
+		${LDFLAGS} $@.c
 
 .c:
-	@echo CC $<
-	@${CC} -o $@ ${CFLAGS} ${LIBS} ${LDFLAGS} $<
+	@echo CC $@
+	@${CC} -o $@ ${CFLAGS} ${CPPFLAGS} ${LDFLAGS} $<
 
 clean:
 	@echo cleaning
