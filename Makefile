@@ -2,7 +2,7 @@
 # See LICENSE file for copyright and license details
 include config.mk
 
-BIN = png2ff ff2png jpg2ff ff2ppm
+BIN = png2ff ff2png jpg2ff ff2jpg ff2ppm
 SRC = ${BIN:=.c}
 HDR = arg.h
 MAN1 = 2ff.1 ${BIN:=.1}
@@ -15,7 +15,7 @@ png2ff ff2png:
 	@${CC} -o $@ ${CFLAGS} ${CPPFLAGS} -L${PNGLIB} -lpng -I${PNGINC} \
 		${LDFLAGS} $@.c
 
-jpg2ff:
+jpg2ff ff2jpg:
 	@echo CC $@
 	@${CC} -o $@ ${CFLAGS} ${CPPFLAGS} -L${JPGLIB} -ljpeg -I${JPGINC} \
 		${LDFLAGS} $@.c
