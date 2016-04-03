@@ -12,12 +12,10 @@ MAN5 = farbfeld.5
 all: ${BIN}
 
 png2ff ff2png:
-	${CC} -o $@ ${CFLAGS} ${CPPFLAGS} -L${PNGLIB} -lpng -I${PNGINC} \
-		${LDFLAGS} $@.c
+	${CC} -o $@ ${CFLAGS} ${CPPFLAGS} -L${PNGLIB} -lpng -I${PNGINC} ${LDFLAGS} $@.c
 
 jpg2ff ff2jpg:
-	${CC} -o $@ ${CFLAGS} ${CPPFLAGS} -L${JPGLIB} -ljpeg -I${JPGINC} \
-		${LDFLAGS} $@.c
+	${CC} -o $@ ${CFLAGS} ${CPPFLAGS} -L${JPGLIB} -ljpeg -I${JPGINC} ${LDFLAGS} $@.c
 
 .c:
 	${CC} -o $@ ${CFLAGS} ${CPPFLAGS} ${LDFLAGS} $<
@@ -28,10 +26,8 @@ clean:
 dist:
 	rm -rf "farbfeld-${VERSION}"
 	mkdir -p "farbfeld-${VERSION}"
-	cp -R FORMAT LICENSE Makefile README TODO config.mk \
-		${SCRIPTS} ${HDR} ${SRC} ${MAN1} ${MAN5} "farbfeld-${VERSION}"
-	tar -cf - "farbfeld-${VERSION}" | \
-		gzip -c > "farbfeld-${VERSION}.tar.gz"
+	cp -R FORMAT LICENSE Makefile README TODO config.mk ${SCRIPTS} ${HDR} ${SRC} ${MAN1} ${MAN5} "farbfeld-${VERSION}"
+	tar -cf - "farbfeld-${VERSION}" | gzip -c > "farbfeld-${VERSION}.tar.gz"
 	rm -rf "farbfeld-${VERSION}"
 
 install: all
