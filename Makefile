@@ -3,6 +3,7 @@
 include config.mk
 
 BIN = png2ff ff2png jpg2ff ff2jpg ff2ppm
+SCRIPTS = 2ff
 SRC = ${BIN:=.c}
 HDR = arg.h
 MAN1 = 2ff.1 ${BIN:=.1}
@@ -11,49 +12,42 @@ MAN5 = farbfeld.5
 all: ${BIN}
 
 png2ff ff2png:
-	@echo CC $@
-	@${CC} -o $@ ${CFLAGS} ${CPPFLAGS} -L${PNGLIB} -lpng -I${PNGINC} \
+	${CC} -o $@ ${CFLAGS} ${CPPFLAGS} -L${PNGLIB} -lpng -I${PNGINC} \
 		${LDFLAGS} $@.c
 
 jpg2ff ff2jpg:
-	@echo CC $@
-	@${CC} -o $@ ${CFLAGS} ${CPPFLAGS} -L${JPGLIB} -ljpeg -I${JPGINC} \
+	${CC} -o $@ ${CFLAGS} ${CPPFLAGS} -L${JPGLIB} -ljpeg -I${JPGINC} \
 		${LDFLAGS} $@.c
 
 .c:
-	@echo CC $@
-	@${CC} -o $@ ${CFLAGS} ${CPPFLAGS} ${LDFLAGS} $<
+	${CC} -o $@ ${CFLAGS} ${CPPFLAGS} ${LDFLAGS} $<
 
 clean:
-	@echo cleaning
-	@rm -f ${BIN}
+	rm -f ${BIN}
 
-dist: clean
-	@echo creating dist tarball
-	@mkdir -p farbfeld-${VERSION}
-	@cp -R FORMAT LICENSE Makefile README TODO config.mk \
-		2ff ${HDR} ${SRC} ${MAN1} ${MAN5} farbfeld-${VERSION}
-	@tar -cf farbfeld-${VERSION}.tar farbfeld-${VERSION}
-	@gzip farbfeld-${VERSION}.tar
-	@rm -rf farbfeld-${VERSION}
+dist:
+	rm -rf "farbfeld-${VERSION}"
+	mkdir -p "farbfeld-${VERSION}"
+	cp -R FORMAT LICENSE Makefile README TODO config.mk \
+		${SCRIPTS} ${HDR} ${SRC} ${MAN1} ${MAN5} "farbfeld-${VERSION}"
+	tar -cf - "farbfeld-${VERSION}" | \
+		gzip -c > "farbfeld-${VERSION}.tar.gz"
+	rm -rf "farbfeld-${VERSION}"
 
 install: all
-	@echo installing into ${DESTDIR}${PREFIX}/bin
-	@mkdir -p "${DESTDIR}${PREFIX}/bin"
-	@cp -f 2ff ${BIN} "${DESTDIR}${PREFIX}/bin"
-	@echo installing manpages into ${DESTDIR}${MANPREFIX}
-	@mkdir -p "${DESTDIR}${MANPREFIX}/man1"
-	@cp -f ${MAN1} "${DESTDIR}${MANPREFIX}/man1"
-	@cd "${DESTDIR}${MANPREFIX}/man1" && chmod 644 ${MAN1}
-	@mkdir -p "${DESTDIR}${MANPREFIX}/man5"
-	@cp -f ${MAN5} "${DESTDIR}${MANPREFIX}/man5"
-	@cd "${DESTDIR}${MANPREFIX}/man5" && chmod 644 ${MAN5}
+	mkdir -p "${DESTDIR}${PREFIX}/bin"
+	cp -f ${SCRIPTS} ${BIN} "${DESTDIR}${PREFIX}/bin"
+	for f in $(BIN) $(SCRIPTS); do chmod 755 "${DESTDIR}${PREFIX}/bin/$$f"; done
+	mkdir -p "${DESTDIR}${MANPREFIX}/man1"
+	cp -f ${MAN1} "${DESTDIR}${MANPREFIX}/man1"
+	for m in $(MAN1); do chmod 644 "${DESTDIR}${MANPREFIX}/man1/$$m"; done
+	mkdir -p "${DESTDIR}${MANPREFIX}/man5"
+	cp -f ${MAN5} "${DESTDIR}${MANPREFIX}/man5"
+	for m in $(MAN5); do chmod 644 "${DESTDIR}${MANPREFIX}/man5/$$m"; done
 
 uninstall:
-	@echo removing from ${DESTDIR}${PREFIX}/bin
-	@cd "${DESTDIR}${PREFIX}/bin" && rm -f 2ff ${BIN}
-	@echo removing manpages from ${DESTDIR}${MANPREFIX}
-	@cd "${DESTDIR}${MANPREFIX}/man1" && rm -f ${MAN1}
-	@cd "${DESTDIR}${MANPREFIX}/man5" && rm -f ${MAN5}
+	for f in $(BIN) $(SCRIPTS); do rm -f "${DESTDIR}${PREFIX}/bin/$$f"; done
+	for m in $(MAN1); do rm -f "${DESTDIR}${MANPREFIX}/man1/$$m"; done
+	for m in $(MAN5); do rm -f "${DESTDIR}${MANPREFIX}/man5/$$m"; done
 
 .PHONY: all clean dist install uninstall
