@@ -87,14 +87,8 @@ main(int argc, char *argv[])
 		fprintf(stderr, "%s: invalid magic value\n", argv0);
 		return 1;
 	}
-	if (!(width = ntohl(hdr[2]))) {
-		fprintf(stderr, "%s: invalid width: zero\n", argv0);
-		return 1;
-	}
-	if (!(height = ntohl(hdr[3]))) {
-		fprintf(stderr, "%s: invalid height: zero\n", argv0);
-		return 1;
-	}
+	width = ntohl(hdr[2]);
+	height = ntohl(hdr[3]);
 
 	if (width > SIZE_MAX / ((sizeof("RGBA") - 1) * sizeof(uint16_t))) {
 		fprintf(stderr, "%s: row length integer overflow\n", argv0);
