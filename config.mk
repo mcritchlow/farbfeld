@@ -23,3 +23,17 @@ LDFLAGS  = -s ${LIBS}
 
 # compiler and linker
 CC = cc
+
+# flags per tool.
+
+png2ff-CFLAGS := -I${PNGINC}
+png2ff-LDFLAGS := -L${PNGLIB} -lpng
+
+ff2png-CFLAGS := -I${PNGINC}
+ff2png-LDFLAGS := -L${PNGLIB} -lpng
+
+jpg2ff-CFLAGS := -I${JPGINC}
+jpg2ff-LDFLAGS := -L${JPGLIB} -ljpeg
+
+ff2jpg-CFLAGS := -I${JPGINC}
+ff2jpg-LDFLAGS := -L${JPGLIB} -ljpeg

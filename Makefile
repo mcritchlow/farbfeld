@@ -11,17 +11,20 @@ MAN5 = farbfeld.5
 
 all: ${BIN}
 
-png2ff ff2png:
-	${CC} -o $@ ${CFLAGS} ${CPPFLAGS} -L${PNGLIB} -lpng -I${PNGINC} ${LDFLAGS} $@.c
+${BIN}: ${@:=.o}
 
-jpg2ff ff2jpg:
-	${CC} -o $@ ${CFLAGS} ${CPPFLAGS} -L${JPGLIB} -ljpeg -I${JPGINC} ${LDFLAGS} $@.c
+OBJ = ${SRC:.c=.o}
 
-.c:
-	${CC} -o $@ ${CFLAGS} ${CPPFLAGS} ${LDFLAGS} $<
+${OBJ}: config.mk ${HDR}
+
+.o:
+	${CC} ${CFLAGS} ${$*-LDFLAGS} -o $@ $<
+
+.c.o:
+	${CC} ${CFLAGS} ${$*-CFLAGS} ${CPPFLAGS} -c $<
 
 clean:
-	rm -f ${BIN}
+	rm -f ${BIN} ${OBJ}
 
 dist:
 	rm -rf "farbfeld-${VERSION}"
