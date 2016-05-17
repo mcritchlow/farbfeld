@@ -11,10 +11,12 @@ MAN5 = farbfeld.5
 
 all: ${BIN}
 
-png2ff ff2png:
+png2ff: png2ff.c
+ff2png: ff2png.c
 	${CC} -o $@ ${CFLAGS} ${CPPFLAGS} -L${PNGLIB} -lpng -I${PNGINC} ${LDFLAGS} $@.c
 
-jpg2ff ff2jpg:
+jpg2ff: jpg2ff.c
+ff2jpg: ff2jpg.c
 	${CC} -o $@ ${CFLAGS} ${CPPFLAGS} -L${JPGLIB} -ljpeg -I${JPGINC} ${LDFLAGS} $@.c
 
 .c:
