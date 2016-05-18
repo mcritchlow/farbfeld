@@ -81,8 +81,11 @@ main(int argc, char *argv[])
 
 	return 0;
 readerr:
-	fprintf(stderr, "%s: fread: ", argv0);
-	perror(NULL);
+	if (ferror(stdin)) {
+		fprintf(stderr, "%s: fread: %s\n", argv0, strerror(errno));
+	} else {
+		fprintf(stderr, "%s: unexpected end of file\n", argv0);
+	}
 
 	return 1;
 }

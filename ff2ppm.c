@@ -60,8 +60,7 @@ main(int argc, char *argv[])
 
 	/* header */
 	if (fread(hdr, sizeof(*hdr), 4, stdin) != 4) {
-		fprintf(stderr, "%s: fread: %s\n", argv0, strerror(errno));
-		return 1;
+		goto readerr;
 	}
 	if (memcmp("farbfeld", hdr, sizeof("farbfeld") - 1)) {
 		fprintf(stderr, "%s: invalid magic value\n", argv0);
@@ -90,8 +89,7 @@ main(int argc, char *argv[])
 	/* write rows */
 	for (i = 0; i < height; ++i) {
 		if (fread(row, sizeof(uint16_t), rowlen, stdin) != rowlen) {
-			fprintf(stderr, "%s: fread: %s\n", argv0, strerror(errno));
-			return 1;
+			goto readerr;
 		}
 		for (j = 0, k = 0; j < rowlen; j += 4, k += 3) {
 			a = ntohs(row[j + 3]);
@@ -108,4 +106,12 @@ main(int argc, char *argv[])
 	}
 
 	return 0;
+readerr:
+	if (ferror(stdin)) {
+		fprintf(stderr, "%s: fread: %s\n", argv0, strerror(errno));
+	} else {
+		fprintf(stderr, "%s: unexpected end of file\n", argv0);
+	}
+
+	return 1;
 }
