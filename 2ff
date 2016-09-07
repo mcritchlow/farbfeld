@@ -5,17 +5,17 @@ if [ "$#" -ne 0 ]; then
 fi
 
 TMP=$(mktemp)
-cat > $TMP;
+cat > "$TMP";
 
-FORMAT=$(file -ib $TMP | cut -d ";" -f 1);
+FORMAT=$(file -ib "$TMP" | cut -d ";" -f 1);
 
 case "$FORMAT" in
-    image/png)  png2ff < $TMP; ret=$? ;;
-    image/jpeg) jpg2ff < $TMP; ret=$? ;;
-    *) convert $TMP png:- 2>/dev/null | png2ff 2>/dev/null; ret=$? ;;
+    image/png)  png2ff < "$TMP"; ret=$? ;;
+    image/jpeg) jpg2ff < "$TMP"; ret=$? ;;
+    *) convert "$TMP" png:- 2>/dev/null | png2ff 2>/dev/null; ret=$? ;;
 esac
 
-rm $TMP;
+rm "$TMP";
 
 if [ $ret -ne 0 ]; then
 	printf "%s: failed to convert %s\n" "$0" "$FORMAT" >&2;
