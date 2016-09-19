@@ -7,8 +7,8 @@ fi
 TMP=$(mktemp)
 cat > "$TMP"
 
-if [ "$(head -c 8 "$TMP")" = "farbfeld" ]; then
-	cat < "$TMP"
+if [ "$(dd if="$TMP" bs=1 count=8 2>/dev/null)" = "farbfeld" ]; then
+	cat "$TMP"
 	exit 0
 fi
 
