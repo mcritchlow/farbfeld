@@ -5,6 +5,8 @@ if [ "$#" -ne 0 ]; then
 fi
 
 TMP=$(mktemp)
+trap 'rm "$TMP"' EXIT
+
 cat > "$TMP"
 
 if [ "$(dd if="$TMP" bs=1 count=8 2>/dev/null)" = "farbfeld" ]; then
@@ -26,11 +28,9 @@ image/jpeg)
 	;;
 esac
 
-ret=$?
-rm "$TMP"
-
-if [ $ret -ne 0 ]; then
+if [ $? -ne 0 ]; then
 	printf "%s: failed to convert from %s\n" "$0" "$FORMAT" >&2
+	exit 1
 fi
 
-exit $ret
+exit 0
