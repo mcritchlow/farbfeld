@@ -1,1 +1,3 @@
  o re-add the old imagefile-tools for gif, ...
+ o flush fp's (fflush()) so we correctly report on truncation
+ o write utility functions to solve duplicate tasks
