@@ -2,7 +2,7 @@
 # See LICENSE file for copyright and license details
 include config.mk
 
-BIN = png2ff ff2png jpg2ff ff2jpg ff2ppm
+BIN = png2ff ff2png jpg2ff ff2jpg ff2pam ff2ppm
 SCRIPTS = 2ff
 SRC = ${BIN:=.c}
 HDR = arg.h
