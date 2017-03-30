@@ -15,9 +15,6 @@ all: $(BIN)
 .o: $(REQ:=.o)
 	$(CC) $(CFLAGS) $($*-LDFLAGS) -o $@ $< $(REQ:=.o)
 
-.c.o:
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $<
-
 $(BIN:=.o): config.mk $(HDR) $(REQ:=.h)
 
 clean:
