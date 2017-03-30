@@ -4,6 +4,7 @@
 
 include config.mk
 
+REQ = util
 HDR = arg.h
 BIN = png2ff ff2png jpg2ff ff2jpg ff2pam ff2ppm
 SCR = 2ff
@@ -13,7 +14,7 @@ MAN5 = farbfeld.5
 all: $(BIN)
 
 .o: $(REQ:=.o)
-	$(CC) $(CFLAGS) $($*-LDFLAGS) -o $@ $< $(REQ:=.o)
+	$(CC) $(LDFLAGS) $($*-LDFLAGS) -o $@ $< $(REQ:=.o)
 
 $(BIN:=.o): config.mk $(HDR) $(REQ:=.h)
 
