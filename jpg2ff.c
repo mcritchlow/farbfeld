@@ -8,7 +8,7 @@
 
 #include <jpeglib.h>
 
-static char *argv0;
+#include "util.h"
 
 METHODDEF(void)
 jpeg_error(j_common_ptr js)
@@ -23,7 +23,7 @@ main(int argc, char *argv[])
 {
 	struct jpeg_decompress_struct js;
 	struct jpeg_error_mgr jerr;
-	uint32_t width, height, tmp32;
+	uint32_t width, height;
 	uint16_t *row;
 	size_t rowlen, i;
 	JSAMPARRAY jpgrow;
@@ -63,14 +63,8 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
-	/* write header */
-	fputs("farbfeld", stdout);
-	tmp32 = htonl(width);
-	if (fwrite(&tmp32, sizeof(uint32_t), 1, stdout) != 1)
-		goto writerr;
-	tmp32 = htonl(height);
-	if (fwrite(&tmp32, sizeof(uint32_t), 1, stdout) != 1)
-		goto writerr;
+	/* write data */
+	write_ff_header(width, height);
 
 	while (js.output_scanline < js.output_height) {
 		/* jpeg_read_scanlines expects an array of pointers to
@@ -87,7 +81,6 @@ main(int argc, char *argv[])
 			row[4*i + 3] = htons(65535);
 		}
 
-		/* write data */
 		if (fwrite(row, sizeof(uint16_t), rowlen, stdout) != rowlen)
 			goto writerr;
 	}

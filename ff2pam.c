@@ -8,12 +8,12 @@
 #include <string.h>
 #include <unistd.h>
 
-static char *argv0;
+#include "util.h"
 
 int
 main(int argc, char *argv[])
 {
-	uint32_t hdr[4], width, height;
+	uint32_t width, height;
 	char buf[BUFSIZ];
 	size_t n, t;
 
@@ -24,19 +24,9 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
-	/* header */
-	if (fread(hdr, sizeof(*hdr), 4, stdin) != 4) {
-		fprintf(stderr, "%s: file too short\n", argv0);
-		return 1;
-	}
-	if (memcmp("farbfeld", hdr, sizeof("farbfeld") - 1)) {
-		fprintf(stderr, "%s: invalid magic value\n", argv0);
-		return 1;
-	}
-	width = ntohl(hdr[2]);
-	height = ntohl(hdr[3]);
+	read_ff_header(&width, &height);
 
-	/* write header */
+	/* write PAM header */
 	printf("P7\n"
 	       "WIDTH %" PRIu32 "\n"
 	       "HEIGHT %" PRIu32 "\n"

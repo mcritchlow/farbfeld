@@ -8,7 +8,7 @@
 
 #include <png.h>
 
-static char *argv0;
+#include "util.h"
 
 void
 pngerr(png_structp pngs, const char *msg)
@@ -22,7 +22,7 @@ main(int argc, char *argv[])
 {
 	png_structp pngs;
 	png_infop pngi;
-	uint32_t width, height, rowlen, tmp32, r, i;
+	uint32_t width, height, rowlen, r, i;
 	uint16_t *row;
 	uint8_t **pngrows;
 
@@ -66,16 +66,9 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
-	/* write header */
-	fputs("farbfeld", stdout);
-	tmp32 = htonl(width);
-	if (fwrite(&tmp32, sizeof(uint32_t), 1, stdout) != 1)
-		goto writerr;
-	tmp32 = htonl(height);
-	if (fwrite(&tmp32, sizeof(uint32_t), 1, stdout) != 1)
-		goto writerr;
-
 	/* write data */
+	write_ff_header(width, height);
+
 	switch(png_get_bit_depth(pngs, pngi)) {
 	case 8:
 		for (r = 0; r < height; ++r) {

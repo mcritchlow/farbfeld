@@ -9,11 +9,12 @@
 
 #include <png.h>
 
-static char *argv0;
+#include "util.h"
 
 void
 pngerr(png_structp pngs, const char *msg)
 {
+	(void)pngs;
 	fprintf(stderr, "%s: libpng: %s\n", argv0, msg);
 	exit(1);
 }
@@ -24,7 +25,7 @@ main(int argc, char *argv[])
 	png_structp pngs;
 	png_infop pngi;
 	size_t rowlen;
-	uint32_t hdr[4], width, height, i;
+	uint32_t width, height, i;
 	uint16_t *row;
 
 	argv0 = argv[0], argc--, argv++;
@@ -34,16 +35,7 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
-	/* header */
-	if (fread(hdr, sizeof(*hdr), 4, stdin) != 4) {
-		goto readerr;
-	}
-	if (memcmp("farbfeld", hdr, sizeof("farbfeld") - 1)) {
-		fprintf(stderr, "%s: invalid magic value\n", argv0);
-		return 1;
-	}
-	width = ntohl(hdr[2]);
-	height = ntohl(hdr[3]);
+	read_ff_header(&width, &height);
 
 	/* load png */
 	pngs = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, pngerr,

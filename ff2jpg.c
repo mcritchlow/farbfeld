@@ -11,8 +11,7 @@
 #include <jpeglib.h>
 
 #include "arg.h"
-
-char *argv0;
+#include "util.h"
 
 METHODDEF(void)
 jpeg_error(j_common_ptr js)
@@ -37,7 +36,7 @@ main(int argc, char *argv[])
 	struct jpeg_error_mgr jerr;
 	size_t rowlen;
 	uint64_t a;
-	uint32_t hdr[4], width, height, i, j, k, l;
+	uint32_t width, height, i, j, k, l;
 	uint16_t *row, mask[3] = { 0xffff, 0xffff, 0xffff };
 	uint8_t *rowout;
 	char *color, colfmt[] = "%#x%#x%#x";
@@ -75,19 +74,11 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND
 
-	if (argc)
+	if (argc) {
 		usage();
+	}
 
-	/* header */
-	if (fread(hdr, sizeof(*hdr), 4, stdin) != 4) {
-		goto readerr;
-	}
-	if (memcmp("farbfeld", hdr, sizeof("farbfeld") - 1)) {
-		fprintf(stderr, "%s: invalid magic value\n", argv0);
-		return 1;
-	}
-	width = ntohl(hdr[2]);
-	height = ntohl(hdr[3]);
+	read_ff_header(&width, &height);
 
 	if (width > SIZE_MAX / ((sizeof("RGBA") - 1) * sizeof(uint16_t))) {
 		fprintf(stderr, "%s: row length integer overflow\n", argv0);
