@@ -13,10 +13,12 @@ MAN5 = farbfeld.5
 
 all: $(BIN)
 
-.o: $(REQ:=.o)
-	$(CC) $(LDFLAGS) $($*-LDFLAGS) -o $@ $< $(REQ:=.o)
+$(BIN): $(REQ:=.o)
 
 $(BIN:=.o): config.mk $(HDR) $(REQ:=.h)
+
+.o: $(REQ:=.o)
+	$(CC) $(LDFLAGS) $($*-LDFLAGS) -o $@ $< $(REQ:=.o)
 
 clean:
 	rm -f $(BIN) $(BIN:=.o) $(REQ:=.o)
