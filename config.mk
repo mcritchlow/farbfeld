@@ -9,7 +9,7 @@ MANPREFIX = ${PREFIX}/man
 
 # flags
 CPPFLAGS = -D_DEFAULT_SOURCE
-CFLAGS   = -std=c89 -pedantic -Wall -Os
+CFLAGS   = -std=c99 -pedantic -Wall -Os
 LDFLAGS  = -s
 
 png2ff-LDFLAGS = -lpng
