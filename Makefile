@@ -17,7 +17,7 @@ $(BIN): $(REQ:=.o)
 
 $(BIN:=.o): config.mk $(HDR) $(REQ:=.h)
 
-.o: $(REQ:=.o)
+.o:
 	$(CC) $(LDFLAGS) $($*-LDFLAGS) -o $@ $< $(REQ:=.o)
 
 clean:
