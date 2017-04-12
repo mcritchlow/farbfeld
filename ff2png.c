@@ -11,73 +11,77 @@
 
 #include "util.h"
 
-void
-pngerr(png_structp pngs, const char *msg)
+static void
+png_err(png_struct *pngs, const char *msg)
 {
 	(void)pngs;
 	fprintf(stderr, "%s: libpng: %s\n", argv0, msg);
 	exit(1);
 }
 
+static void
+png_setup_writer(png_struct **s, png_info **i, uint32_t w, uint32_t h)
+{
+	*s = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, png_err, NULL);
+	*i = png_create_info_struct(*s);
+
+	if (!*s || !*i) {
+		fprintf(stderr, "%s: failed to initialize libpng\n", argv0);
+		exit(1);
+	}
+
+	png_init_io(*s, stdout);
+	png_set_IHDR(*s, *i, w, h, 16, PNG_COLOR_TYPE_RGB_ALPHA,
+	             PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
+	             PNG_FILTER_TYPE_BASE);
+	png_write_info(*s, *i);
+}
+
+static void
+usage(void)
+{
+	fprintf(stderr, "usage: %s\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
-	png_structp pngs;
-	png_infop pngi;
+	png_struct *pngs;
+	png_info *pngi;
 	size_t rowlen;
 	uint32_t width, height, i;
 	uint16_t *row;
 
+	/* arguments */
 	argv0 = argv[0], argc--, argv++;
 
 	if (argc) {
-		fprintf(stderr, "usage: %s\n", argv0);
-		return 1;
+		usage();
 	}
 
-	read_ff_header(&width, &height);
-
-	/* load png */
-	pngs = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, pngerr,
-	                               NULL);
-	pngi = png_create_info_struct(pngs);
-
-	if (!pngs || !pngi) {
-		fprintf(stderr, "%s: failed to initialize libpng\n", argv0);
-		return 1;
-	}
-	png_init_io(pngs, stdout);
-	png_set_IHDR(pngs, pngi, width, height, 16, PNG_COLOR_TYPE_RGB_ALPHA,
-	             PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
-	             PNG_FILTER_TYPE_BASE);
-	png_write_info(pngs, pngi);
-
-	/* write rows */
-	if (width > SIZE_MAX / ((sizeof("RGBA") - 1) * sizeof(uint16_t))) {
-		fprintf(stderr, "%s: row length integer overflow\n", argv0);
-		return 1;
-	}
+	/* prepare */
+	ff_read_header(&width, &height);
+	png_setup_writer(&pngs, &pngi, width, height);
+	row = ereallocarray(NULL, width, (sizeof("RGBA") - 1) * sizeof(uint16_t));
 	rowlen = width * (sizeof("RGBA") - 1);
-	if (!(row = malloc(rowlen * sizeof(uint16_t)))) {
-		fprintf(stderr, "%s: malloc: out of memory\n", argv0);
-		return 1;
-	}
+
+	/* write data */
 	for (i = 0; i < height; ++i) {
 		if (fread(row, sizeof(uint16_t), rowlen, stdin) != rowlen) {
-			goto readerr;
+			if (ferror(stdin)) {
+				fprintf(stderr, "%s: fread: %s\n", argv0, strerror(errno));
+			} else {
+				fprintf(stderr, "%s: unexpected end of file\n", argv0);
+			}
+			return 1;
 		}
 		png_write_row(pngs, (uint8_t *)row);
 	}
+
+	/* clean up */
 	png_write_end(pngs, NULL);
 	png_destroy_write_struct(&pngs, NULL);
 
 	return 0;
-readerr:
-	if (ferror(stdin)) {
-		fprintf(stderr, "%s: fread: %s\n", argv0, strerror(errno));
-	} else {
-		fprintf(stderr, "%s: unexpected end of file\n", argv0);
-	}
-
-	return 1;
 }

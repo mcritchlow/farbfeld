@@ -5,69 +5,75 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <png.h>
 
 #include "util.h"
 
 void
-pngerr(png_structp pngs, const char *msg)
+png_err(png_struct *pngs, const char *msg)
 {
+	(void)pngs;
 	fprintf(stderr, "%s: libpng: %s\n", argv0, msg);
+	exit(1);
+}
+
+void
+png_setup_reader(png_struct **s, png_info **i, uint32_t *w, uint32_t *h)
+{
+	*s = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, png_err, NULL);
+	*i = png_create_info_struct(*s);
+
+	if (!*s || !*i) {
+		fprintf(stderr, "%s: failed to initialize libpng\n", argv0);
+		exit(1);
+	}
+
+	png_init_io(*s, stdin);
+	if (png_get_valid(*s, *i, PNG_INFO_tRNS)) {
+		png_set_tRNS_to_alpha(*s);
+	}
+	png_set_add_alpha(*s, 255*257, PNG_FILLER_AFTER);
+	png_set_expand_gray_1_2_4_to_8(*s);
+	png_set_gray_to_rgb(*s);
+	png_set_packing(*s);
+	png_read_png(*s, *i, PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND, NULL);
+	*w = png_get_image_width(*s, *i);
+	*h = png_get_image_height(*s, *i);
+}
+
+static void
+usage(void)
+{
+	fprintf(stderr, "usage: %s\n", argv0);
 	exit(1);
 }
 
 int
 main(int argc, char *argv[])
 {
-	png_structp pngs;
-	png_infop pngi;
+	png_struct *pngs;
+	png_info *pngi;
 	uint32_t width, height, rowlen, r, i;
 	uint16_t *row;
 	uint8_t **pngrows;
 
+	/* arguments */
 	argv0 = argv[0], argc--, argv++;
 
 	if (argc) {
-		fprintf(stderr, "usage: %s\n", argv0);
-		return 1;
+		usage();
 	}
 
-	/* load png */
-	pngs = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, pngerr,
-	                              NULL);
-	pngi = png_create_info_struct(pngs);
-
-	if (!pngs || !pngi) {
-		fprintf(stderr, "%s: failed to initialize libpng\n", argv0);
-		return 1;
-	}
-	png_init_io(pngs, stdin);
-	if (png_get_valid(pngs, pngi, PNG_INFO_tRNS))
-		png_set_tRNS_to_alpha(pngs);
-	png_set_add_alpha(pngs, 255*257, PNG_FILLER_AFTER);
-	png_set_expand_gray_1_2_4_to_8(pngs);
-	png_set_gray_to_rgb(pngs);
-	png_set_packing(pngs);
-	png_read_png(pngs, pngi, PNG_TRANSFORM_PACKING |
-	             PNG_TRANSFORM_EXPAND, NULL);
-	width = png_get_image_width(pngs, pngi);
-	height = png_get_image_height(pngs, pngi);
+	/* prepare */
+	png_setup_reader(&pngs, &pngi, &width, &height);
+	row = ereallocarray(NULL, width, (sizeof("RGBA") - 1) * sizeof(uint16_t));
+	rowlen = width * (sizeof("RGBA") - 1);
 	pngrows = png_get_rows(pngs, pngi);
 
-	/* allocate output row buffer */
-	if (width > SIZE_MAX / ((sizeof("RGBA") - 1) * sizeof(uint16_t))) {
-		fprintf(stderr, "%s: row length integer overflow\n", argv0);
-		return 1;
-	}
-	rowlen = width * (sizeof("RGBA") - 1);
-	if (!(row = malloc(rowlen * sizeof(uint16_t)))) {
-		fprintf(stderr, "%s: malloc: out of memory\n", argv0);
-		return 1;
-	}
-
 	/* write data */
-	write_ff_header(width, height);
+	ff_write_header(width, height);
 
 	switch(png_get_bit_depth(pngs, pngi)) {
 	case 8:
@@ -77,7 +83,9 @@ main(int argc, char *argv[])
 			}
 			if (fwrite(row, sizeof(uint16_t), rowlen,
 			           stdout) != rowlen) {
-				goto writerr;
+				fprintf(stderr, "%s: fwrite: %s\n", argv0,
+				        strerror(errno));
+				return 1;
 			}
 		}
 		break;
@@ -85,7 +93,9 @@ main(int argc, char *argv[])
 		for (r = 0; r < height; ++r) {
 			if (fwrite(pngrows[r], sizeof(uint16_t), rowlen,
 			           stdout) != rowlen) {
-				goto writerr;
+				fprintf(stderr, "%s: fwrite: %s\n", argv0,
+				        strerror(errno));
+				return 1;
 			}
 		}
 		break;
@@ -94,12 +104,8 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
+	/* clean up */
 	png_destroy_read_struct(&pngs, &pngi, NULL);
 
 	return 0;
-writerr:
-	fprintf(stderr, "%s: fwrite: ", argv0);
-	perror(NULL);
-
-	return 1;
 }
