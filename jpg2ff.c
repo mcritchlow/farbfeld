@@ -90,5 +90,5 @@ main(int argc, char *argv[])
 	jpeg_finish_decompress(&js);
 	jpeg_destroy_decompress(&js);
 
-	return 0;
+	return fshut(stdout, "<stdout>");
 }

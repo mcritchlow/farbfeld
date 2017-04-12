@@ -82,6 +82,33 @@ parse_mask(const char *s, uint16_t mask[3])
 	return 0;
 }
 
+int
+fshut(FILE *fp, const char *fname)
+{
+	int ret = 0;
+
+	/* fflush() is undefined for input streams by ISO C,
+	 * but not POSIX 2008 if you ignore ISO C overrides.
+	 * Leave it unchecked and rely on the following
+	 * functions to detect errors.
+	 */
+	fflush(fp);
+
+	if (ferror(fp) && !ret) {
+		fprintf(stderr, "%s: ferror %s: %s\n", argv0, fname,
+		        strerror(errno));
+		ret = 1;
+	}
+
+	if (fclose(fp) && !ret) {
+		fprintf(stderr, "%s: fclose %s: %s\n", argv0, fname,
+		        strerror(errno));
+		ret = 1;
+	}
+
+	return ret;
+}
+
 void *
 ereallocarray(void *optr, size_t nmemb, size_t size)
 {

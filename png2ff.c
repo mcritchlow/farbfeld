@@ -107,5 +107,5 @@ main(int argc, char *argv[])
 	/* clean up */
 	png_destroy_read_struct(&pngs, &pngi, NULL);
 
-	return 0;
+	return fshut(stdout, "<stdout>");
 }

@@ -11,6 +11,8 @@ void ff_write_header(uint32_t width, uint32_t height);
 
 int parse_mask(const char *, uint16_t mask[3]);
 
+int fshut(FILE *, const char *);
+
 #undef reallocarray
 void *reallocarray(void *, size_t, size_t);
 void *ereallocarray(void *optr, size_t nmemb, size_t size);

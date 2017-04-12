@@ -118,5 +118,5 @@ main(int argc, char *argv[])
 	jpeg_finish_compress(&jcomp);
 	jpeg_destroy_compress(&jcomp);
 
-	return 0;
+	return fshut(stdout, "<stdout>");
 }

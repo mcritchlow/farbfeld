@@ -83,5 +83,5 @@ main(int argc, char *argv[])
 	png_write_end(pngs, NULL);
 	png_destroy_write_struct(&pngs, NULL);
 
-	return 0;
+	return fshut(stdout, "<stdout>");
 }
