@@ -21,65 +21,47 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	size_t rowlen;
+	size_t rowlen, rowoutlen;
 	uint64_t a;
 	uint32_t width, height, i, j, k, l;
 	uint16_t *row, mask[3] = { 0xffff, 0xffff, 0xffff };
 	uint8_t *rowout;
-	char *color, colfmt[] = "%#x%#x%#x";
-	unsigned int collen, col[3], colfac;
 
-	argv0 = argv[0];
+	/* arguments */
 	ARGBEGIN {
 	case 'b':
-		color = EARGF(usage());
-		if (color[0] == '#') {
-			color++;
-		}
-		collen = strlen(color);
-		if (collen != 3 && collen != 6 && collen != 12) {
+		if (parse_mask(EARGF(usage()), mask)) {
 			usage();
-		}
-		colfmt[1] = colfmt[4] = colfmt[7] = ((collen / 3) + '0');
-		if (sscanf(color, colfmt, col, col + 1, col + 2) != 3) {
-			usage();
-		}
-		/* UINT16_MAX / 255 = 257; UINT16_MAX / 15 = 4369 */
-		colfac = (collen == 3) ? 4369 : (collen == 6) ? 257 : 1;
-		for (i = 0; i < 3; i++) {
-			mask[i] = col[i] * colfac;
 		}
 		break;
 	default:
 		usage();
 	} ARGEND
 
-	if (argc)
+	if (argc) {
 		usage();
-
-	read_ff_header(&width, &height);
-
-	if (width > SIZE_MAX / ((sizeof("RGBA") - 1) * sizeof(uint16_t))) {
-		fprintf(stderr, "%s: row length integer overflow\n", argv0);
-		return 1;
 	}
+
+	/* prepare */
+	ff_read_header(&width, &height);
+	row = ereallocarray(NULL, width, (sizeof("RGBA") - 1) * sizeof(uint16_t));
+	rowout = ereallocarray(NULL, width, (sizeof("RGB") - 1) * sizeof(uint8_t));
 	rowlen = width * (sizeof("RGBA") - 1);
-	if (!(row = malloc(rowlen * sizeof(uint16_t)))) {
-		fprintf(stderr, "%s: malloc: %s\n", argv0, strerror(errno));
-		return 1;
-	}
-	if (!(rowout = malloc(width * (sizeof("RGB") - 1) * sizeof(uint8_t)))) {
-		fprintf(stderr, "%s: malloc: %s\n", argv0, strerror(errno));
-		return 1;
-	}
+	rowoutlen = width * (sizeof("RGB") - 1);
 
-	/* PPM binary */
+	/* write data */
 	printf("P6\n%" PRIu32 " %" PRIu32 "\n255\n", width, height);
 
-	/* write rows */
 	for (i = 0; i < height; ++i) {
 		if (fread(row, sizeof(uint16_t), rowlen, stdin) != rowlen) {
-			goto readerr;
+			if (ferror(stdin)) {
+				fprintf(stderr, "%s: fread: %s\n", argv0,
+				        strerror(errno));
+			} else {
+				fprintf(stderr, "%s: unexpected end of file\n",
+				        argv0);
+			}
+			return 1;
 		}
 		for (j = 0, k = 0; j < rowlen; j += 4, k += 3) {
 			a = ntohs(row[j + 3]);
@@ -89,19 +71,11 @@ main(int argc, char *argv[])
 				                (257 * 65535);
 			}
 		}
-		if (fwrite(rowout, 3, width, stdout) != width) {
+		if (fwrite(rowout, sizeof(uint8_t), rowoutlen, stdout) != rowoutlen) {
 			fprintf(stderr, "%s: fwrite: %s\n", argv0, strerror(errno));
 			return 1;
 		}
 	}
 
 	return 0;
-readerr:
-	if (ferror(stdin)) {
-		fprintf(stderr, "%s: fread: %s\n", argv0, strerror(errno));
-	} else {
-		fprintf(stderr, "%s: unexpected end of file\n", argv0);
-	}
-
-	return 1;
 }
