@@ -5,28 +5,39 @@
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
 #include "util.h"
 
+static void
+usage(void)
+{
+	fprintf(stderr, "usage: %s\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
-	uint32_t width, height;
-	char buf[BUFSIZ];
-	size_t n, t;
+	size_t rowlen;
+	uint32_t width, height, i;
+	uint16_t *row;
 
+	/* arguments */
 	argv0 = argv[0], argc--, argv++;
 
 	if (argc) {
-		fprintf(stderr, "usage: %s\n", argv0);
-		return 1;
+		usage();
 	}
 
-	read_ff_header(&width, &height);
+	/* prepare */
+	ff_read_header(&width, &height);
+	row = ereallocarray(NULL, width, (sizeof("RGBA") - 1) * sizeof(uint16_t));
+	rowlen = width * (sizeof("RGBA") - 1);
 
-	/* write PAM header */
+	/* write data */
 	printf("P7\n"
 	       "WIDTH %" PRIu32 "\n"
 	       "HEIGHT %" PRIu32 "\n"
@@ -36,28 +47,19 @@ main(int argc, char *argv[])
 	       "ENDHDR\n",
 	       width, height);
 
-	/* write image */
-	t = (size_t)width * (size_t)height * sizeof(uint16_t) * (sizeof("RGBA") - 1);
-	for (; (n = fread(buf, 1, sizeof(buf) <= t ? sizeof(buf) : t, stdin)); ) {
-		t -= n;
-		fwrite(buf, 1, n, stdout);
-
-		if (feof(stdin)) {
-			break;
-		}
-		if (ferror(stdin)) {
-			fprintf(stderr, "%s: read: %s\n", argv0, strerror(errno));
+	for (i = 0; i < height; i++) {
+		if (fread(row, sizeof(uint16_t), rowlen, stdin) != rowlen) {
+			if (ferror(stdin)) {
+				fprintf(stderr, "%s: fread: %s\n", argv0, strerror(errno));
+			} else {
+				fprintf(stderr, "%s: unexpected end of file\n", argv0);
+			}
 			return 1;
 		}
-		if (ferror(stdout)) {
-			fprintf(stderr, "%s: write: %s\n", argv0, strerror(errno));
+		if (fwrite(row, sizeof(uint16_t), rowlen, stdout) != rowlen) {
+			fprintf(stderr, "%s: fwrite: %s\n", argv0, strerror(errno));
 			return 1;
 		}
-	}
-
-	if (t > 0) {
-		fprintf(stderr, "%s: file too short\n", argv0);
-		return 1;
 	}
 
 	return 0;
