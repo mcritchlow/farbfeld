@@ -91,7 +91,7 @@ main(int argc, char *argv[])
 	rowlen = width * (sizeof("RGBA") - 1);
 	rowout = ereallocarray(NULL, width, (sizeof("RGB") - 1) * sizeof(uint8_t));
 
-	/* write rows */
+	/* write data */
 	for (i = 0; i < height; ++i) {
 		if (fread(row, sizeof(uint16_t), rowlen, stdin) != rowlen) {
 			if (ferror(stdin)) {
