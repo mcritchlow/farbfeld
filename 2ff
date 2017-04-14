@@ -25,7 +25,7 @@ else
 		jpg2ff < "$TMP"
 		;;
 	*)
-		convert "$TMP" png:- 2>/dev/null | png2ff 2>/dev/null
+		convert "$TMP" png:- | png2ff
 		;;
 	esac
 fi
