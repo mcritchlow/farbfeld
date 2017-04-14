@@ -24,7 +24,7 @@ writes a diagnostic message to stderr.
 .It Fl b Ar colour
 Mix the background alpha channel with
 .Ar colour
-specified as #rgb, #rrggbb or #rrrrggggbbbb. The default is #fff.
+specified as rgb, rrggbb or rrrrggggbbbb. The default is fff.
 .It Fl o
 Optimize the Huffman table, which reduces the file size but takes longer.
 .It Fl q Ar quality
@@ -46,7 +46,7 @@ $
 .Pp
 $ bunzip2 < image.ff.bz2 |
 .Nm
--b '#00ff00' -q 90 > image.jpg
+-b 0f0 -q 90 > image.jpg
 .Sh SEE ALSO
 .Xr bzip2 1 ,
 .Xr farbfeld 5

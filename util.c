@@ -57,10 +57,6 @@ parse_mask(const char *s, uint16_t mask[3])
 	unsigned int col[3], colfac;
 	char fmt[] = "%#x%#x%#x";
 
-	if ((s++)[0] != '#') {
-		return 1;
-	}
-
 	slen = strlen(s);
 	if (slen != 3 && slen != 6 && slen != 12) {
 		return 1;
