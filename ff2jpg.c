@@ -106,9 +106,11 @@ main(int argc, char *argv[])
 		for (j = 0, k = 0; j < rowlen; j += 4, k += 3) {
 			a = ntohs(row[j + 3]);
 			for (l = 0; l < 3; l++) {
+				/* alpha blending and 8-bit-reduction */
 				rowout[k + l] = (a * ntohs(row[j + l]) +
-				                 (65535 - a) * mask[l]) /
-				                (257 * 65535);
+				                 (UINT16_MAX - a) * mask[l]) /
+				                (UINT16_MAX *
+						 (UINT16_MAX / UINT8_MAX));
 			}
 		}
 		jpeg_write_scanlines(&jcomp, &rowout, 1);
