@@ -11,7 +11,7 @@
 
 #include "util.h"
 
-void
+static void
 png_err(png_struct *pngs, const char *msg)
 {
 	(void)pngs;
@@ -19,7 +19,7 @@ png_err(png_struct *pngs, const char *msg)
 	exit(1);
 }
 
-void
+static void
 png_setup_reader(png_struct **s, png_info **i, uint32_t *w, uint32_t *h)
 {
 	*s = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, png_err, NULL);
