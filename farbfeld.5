@@ -1,4 +1,4 @@
-.Dd 2016-01-04
+.Dd 2017-04-14
 .Dt FARBFELD 5
 .Os suckless.org
 .Sh NAME
@@ -17,17 +17,24 @@ BYTES    DESCRIPTION
 4        32-Bit BE unsigned integer (height)
 [2222]   4*16-Bit BE unsigned integers [RGBA] / pixel, row-major
 .Ed
+.Pp
 The RGB-data should be sRGB for best interoperability and not
 alpha-premultiplied.
 .Sh USAGE
 .Nm
-provides
-.Xr png2ff 1 ,
-.Xr jpg2ff 1 ,
+provides the tools
 .Xr 2ff 1 ,
-.Xr ff2png 1
-for
-.Em conversions ;
+.Xr jpg2ff 1 ,
+.Xr png2ff 1
+and
+.Xr ff2jpg 1 ,
+.Xr ff2pam 1 ,
+.Xr ff2png 1 ,
+.Xr ff2ppm 1
+to
+.Em convert
+to and from farbfeld images respectively.
+.Pp
 .Xr bzip2 1
 is recommended for
 .Em compression ,
@@ -42,8 +49,8 @@ appended (e.g. ".ff.bz2").
 .Nm
 was created because the author was not satisfied with the boilerplate
 and inherent complexity involved in handling common image formats
-(PNG, JPEG, GIF,...), having to rely on bloated libraries not being able
-to focus on the task at hand for a given problem.
+(PNG, JPEG, GIF,...), having to rely on bloated libraries while not being
+able to focus on the task at hand for a given image processing problem.
 .Sh EXAMPLES
 Below is an example for a color inverter usable in a pipeline. No external
 libraries other than libc are needed to handle the image data:
@@ -115,8 +122,10 @@ main(int argc, char *argv[])
 .Ed
 .Sh SEE ALSO
 .Xr 2ff 1 ,
-.Xr bzip2 1 ,
+.Xr ff2jpg 1 ,
+.Xr ff2pam 1 ,
 .Xr ff2png 1 ,
+.Xr ff2ppm 1 ,
 .Xr jpg2ff 1 ,
 .Xr png2ff 1
 .Sh AUTHORS

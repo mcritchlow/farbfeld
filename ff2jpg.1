@@ -1,19 +1,19 @@
-.Dd 2016-03-23
+.Dd 2017-04-14
 .Dt FF2JPG 1
 .Os suckless.org
 .Sh NAME
 .Nm ff2jpg
-.Nd convert farbfeld to JPEG
+.Nd convert farbfeld to JPG
 .Sh SYNOPSIS
 .Nm
-.Op Fl b Ar color
+.Op Fl b Ar colour
 .Op Fl o
 .Op Fl q Ar quality
 .Sh DESCRIPTION
 .Nm
 reads a
 .Xr farbfeld 5
-image from stdin, converts it to a JPEG image (RGB) and writes the result to
+image from stdin, converts it to JPG (8-bit RGB) and writes the result to
 stdout.
 .Pp
 In case of an error
@@ -21,18 +21,16 @@ In case of an error
 writes a diagnostic message to stderr.
 .Sh OPTIONS
 .Bl -tag -width Ds
-.It Fl b Ar color
-.Ar color
-to mix with the background alpha channel, the default is white.
-.Pp
-The following formats are supported:
-"#rrggbb", "#rrrrggggbbbb" and the short-form "#rgb" which expands to "#rrggbb".
+.It Fl b Ar colour
+Mix the background alpha channel with
+.Ar colour
+specified as #rgb, #rrggbb or #rrrrggggbbbb. The default is #fff.
 .It Fl o
-Optimize Huffman table (smaller file, but slow compression).
+Optimize the Huffman table, which reduces the file size but takes longer.
 .It Fl q Ar quality
-set JPEG output
+Set the output
 .Ar quality
-(range 0-100), the default is 85.
+ranging from 0 to 100. The default is 85.
 .El
 .Sh EXIT STATUS
 .Bl -tag -width Ds
@@ -43,14 +41,14 @@ An error occurred.
 .El
 .Sh EXAMPLES
 $
-png2ff < test.png |
 .Nm
--b '#00ff00' -q 85 > test.jpg
+< image.ff > image.jpg
+.Pp
+$ bunzip2 < image.ff.bz2 |
+.Nm
+-b '#00ff00' -q 90 > image.jpg
 .Sh SEE ALSO
-.Xr 2ff 1 ,
-.Xr bunzip2 1 ,
 .Xr bzip2 1 ,
-.Xr png2ff 1 ,
 .Xr farbfeld 5
 .Sh AUTHORS
 .An Hiltjo Posthuma Aq Mt hiltjo@codemadness.org

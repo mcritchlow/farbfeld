@@ -1,4 +1,4 @@
-.Dd 2016-01-05
+.Dd 2017-04-14
 .Dt 2FF 1
 .Os suckless.org
 .Sh NAME
@@ -13,9 +13,9 @@ reads an image from stdin, converts it to
 and writes the result to stdout.
 .Pp
 .Nm
-is a wrapper script around the *2ff-tools
-with a soft fallback to obtaining a PNG from imagemagick's
-.Xr convert 1
+is a wrapper script around the farbfeld conversion tools
+with a fallback to obtaining a PNG using
+.Xr ImageMagick 1
 and passing it through
 .Xr png2ff 1 .
 .Pp
@@ -27,9 +27,7 @@ writes a diagnostic message to stderr.
 .It 0
 Image processed successfully.
 .It 1
-An error occurred or
-.Xr convert 1
-was not found in the fallback.
+An error occurred.
 .El
 .Sh EXAMPLES
 $
@@ -40,12 +38,8 @@ $
 .Nm
 < image.* | bzip2 > image.ff.bz2
 .Sh SEE ALSO
-.Xr bunzip2 1 ,
 .Xr bzip2 1 ,
-.Xr convert 1 ,
-.Xr ff2png 1 ,
-.Xr jpg2ff 1 ,
-.Xr png2ff 1 ,
+.Xr ImageMagick 1 ,
 .Xr farbfeld 5
 .Sh AUTHORS
 .An Laslo Hunhold Aq Mt dev@frign.de

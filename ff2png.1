@@ -1,4 +1,4 @@
-.Dd 2016-01-17
+.Dd 2017-04-14
 .Dt FF2PNG 1
 .Os suckless.org
 .Sh NAME
@@ -10,7 +10,7 @@
 .Nm
 reads a
 .Xr farbfeld 5
-image from stdin, converts it to a 16-Bit RGBA PNG and writes the result
+image from stdin, converts it to PNG (16-bit RGBA) and writes the result
 to stdout.
 .Pp
 In case of an error
@@ -32,11 +32,7 @@ $ bunzip2 < image.ff.bz2 |
 .Nm
 > image.png
 .Sh SEE ALSO
-.Xr 2ff 1 ,
-.Xr bunzip2 1 ,
 .Xr bzip2 1 ,
-.Xr jpg2ff 1 ,
-.Xr png2ff 1 ,
 .Xr farbfeld 5
 .Sh AUTHORS
 .An Laslo Hunhold Aq Mt dev@frign.de

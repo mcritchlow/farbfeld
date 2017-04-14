@@ -1,17 +1,17 @@
-.Dd 2016-03-21
+.Dd 2017-04-14
 .Dt FF2PPM 1
 .Os suckless.org
 .Sh NAME
 .Nm ff2ppm
-.Nd convert farbfeld to PPM (binary)
+.Nd convert farbfeld to PPM
 .Sh SYNOPSIS
 .Nm
-.Op Fl b Ar color
+.Op Fl b Ar colour
 .Sh DESCRIPTION
 .Nm
 reads a
 .Xr farbfeld 5
-image from stdin, converts it to a PPM image (P6 binary format, RGB) and
+image from stdin, converts it to PPM (16-Bit RGB P6 binary format) and
 writes the result to stdout.
 .Pp
 In case of an error
@@ -19,12 +19,11 @@ In case of an error
 writes a diagnostic message to stderr.
 .Sh OPTIONS
 .Bl -tag -width Ds
-.It Fl b Ar color
-.Ar color
-to mix with the background alpha channel, the default is white.
-.Pp
-The following formats are supported:
-"#rrggbb", "#rrrrggggbbbb" and the short-form "#rgb" which expands to "#rrggbb".
+.It Fl b Ar colour
+.Ar colour
+Mix the background alpha channel with
+.Ar colour
+specified as #rgb, #rrggbb or #rrrrggggbbbb. The default is #fff.
 .El
 .Sh EXIT STATUS
 .Bl -tag -width Ds
@@ -35,14 +34,14 @@ An error occurred.
 .El
 .Sh EXAMPLES
 $
-png2ff < test.png |
 .Nm
--b '#00ff00' > test.ppm
+< image.ff > image.ppm
+.Pp
+$ bunzip2 < image.ff.bz2 |
+.Nm
+-b '#00ff00' > image.ppm
 .Sh SEE ALSO
-.Xr 2ff 1 ,
-.Xr bunzip2 1 ,
 .Xr bzip2 1 ,
-.Xr png2ff 1 ,
 .Xr farbfeld 5
 .Sh AUTHORS
 .An Hiltjo Posthuma Aq Mt hiltjo@codemadness.org
