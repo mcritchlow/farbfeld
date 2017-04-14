@@ -11,11 +11,8 @@ MANPREFIX = ${PREFIX}/man
 CPPFLAGS = -D_DEFAULT_SOURCE
 CFLAGS   = -std=c99 -pedantic -Wall -Wextra -Os
 LDFLAGS  = -s
-
-png2ff-LDFLAGS = -lpng
-ff2png-LDFLAGS = -lpng
-jpg2ff-LDFLAGS = -ljpeg
-ff2jpg-LDFLAGS = -ljpeg
+PNG-LDFLAGS = -lpng
+JPG-LDFLAGS = -ljpeg
 
 # compiler and linker
 CC = cc
