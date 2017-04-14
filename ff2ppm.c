@@ -14,7 +14,7 @@
 static void
 usage(void)
 {
-	fprintf(stderr, "usage: %s [-b #rrggbb]\n", argv0);
+	fprintf(stderr, "usage: %s [-b colour]\n", argv0);
 	exit(1);
 }
 
