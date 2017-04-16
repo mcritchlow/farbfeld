@@ -23,7 +23,7 @@ $(BIN): $(REQ:=.o)
 $(BIN:=.o): config.mk $(HDR) $(REQ:=.h)
 
 .o:
-	$(CC) $(LDFLAGS) $($*-LDFLAGS) -o $@ $< $(REQ:=.o)
+	$(CC) -o $@ $< $(REQ:=.o) $($*-LDFLAGS) $(LDFLAGS)
 
 clean:
 	rm -f $(BIN) $(BIN:=.o) $(REQ:=.o)
