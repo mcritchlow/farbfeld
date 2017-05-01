@@ -11,10 +11,10 @@ SCR = 2ff
 MAN1 = 2ff.1 $(BIN:=.1)
 MAN5 = farbfeld.5
 
-png2ff-LDFLAGS = $(PNG-LDFLAGS)
-ff2png-LDFLAGS = $(PNG-LDFLAGS)
-jpg2ff-LDFLAGS = $(JPG-LDFLAGS)
-ff2jpg-LDFLAGS = $(JPG-LDFLAGS)
+png2ff-LDLIBS = $(PNG-LDLIBS)
+ff2png-LDLIBS = $(PNG-LDLIBS)
+jpg2ff-LDLIBS = $(JPG-LDLIBS)
+ff2jpg-LDLIBS = $(JPG-LDLIBS)
 
 all: $(BIN)
 
@@ -23,7 +23,10 @@ $(BIN): $(REQ:=.o)
 $(BIN:=.o): config.mk $(HDR) $(REQ:=.h)
 
 .o:
-	$(CC) -o $@ $< $(REQ:=.o) $($*-LDFLAGS) $(LDFLAGS)
+	$(CC) -o $@ $(LDFLAGS) $< $(REQ:=.o) $($*-LDLIBS)
+
+.c.o:
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
 clean:
 	rm -f $(BIN) $(BIN:=.o) $(REQ:=.o)
