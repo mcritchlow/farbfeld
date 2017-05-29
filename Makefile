@@ -18,7 +18,7 @@ ff2jpg-LDLIBS = $(JPG-LDLIBS)
 
 all: $(BIN)
 
-$(BIN): $(REQ:=.o)
+$(BIN): $(@:=.o) $(REQ:=.o)
 
 $(BIN:=.o): config.mk $(HDR) $(REQ:=.h)
 
