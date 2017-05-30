@@ -11,16 +11,26 @@ SCR = 2ff
 MAN1 = 2ff.1 $(BIN:=.1)
 MAN5 = farbfeld.5
 
+all: $(BIN)
+
 png2ff-LDLIBS = $(PNG-LDLIBS)
 ff2png-LDLIBS = $(PNG-LDLIBS)
 jpg2ff-LDLIBS = $(JPG-LDLIBS)
 ff2jpg-LDLIBS = $(JPG-LDLIBS)
 
-all: $(BIN)
+png2ff: png2ff.o $(REQ:=.o)
+ff2png: ff2png.o $(REQ:=.o)
+jpg2ff: jpg2ff.o $(REQ:=.o)
+ff2jpg: ff2jpg.o $(REQ:=.o)
+ff2pam: ff2pam.o $(REQ:=.o)
+ff2ppm: ff2ppm.o $(REQ:=.o)
 
-$(BIN): $(@:=.o) $(REQ:=.o)
-
-$(BIN:=.o): config.mk $(HDR) $(REQ:=.h)
+png2ff.o: png2ff.c config.mk $(HDR) $(REQ:=.h)
+ff2png.o: ff2png.c config.mk $(HDR) $(REQ:=.h)
+jpg2ff.o: jpg2ff.c config.mk $(HDR) $(REQ:=.h)
+ff2jpg.o: ff2jpg.c config.mk $(HDR) $(REQ:=.h)
+ff2pam.o: ff2pam.c config.mk $(HDR) $(REQ:=.h)
+ff2ppm.o: ff2ppm.c config.mk $(HDR) $(REQ:=.h)
 
 .o:
 	$(CC) -o $@ $(LDFLAGS) $< $(REQ:=.o) $($*-LDLIBS)
