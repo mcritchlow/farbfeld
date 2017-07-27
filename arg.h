@@ -1,65 +1,55 @@
 /*
- * Copy me if you can.
- * by 20h
+ * ISC-License
+ *
+ * (c) 2017 Laslo Hunhold <dev@frign.de>
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
+ * WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
+ * AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+ * DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+ * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+ * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ * PERFORMANCE OF THIS SOFTWARE.
  */
-
-#ifndef ARG_H__
-#define ARG_H__
+#ifndef ARG_H
+#define ARG_H
 
 extern char *argv0;
 
-/* use main(int argc, char *argv[]) */
-#define ARGBEGIN	for (argv0 = *argv, argv++, argc--;\
-					argv[0] && argv[0][0] == '-'\
-					&& argv[0][1];\
-					argc--, argv++) {\
-				char argc_;\
-				char **argv_;\
-				int brk_;\
-				if (argv[0][1] == '-' && argv[0][2] == '\0') {\
-					argv++;\
-					argc--;\
-					break;\
-				}\
-				for (brk_ = 0, argv[0]++, argv_ = argv;\
-						argv[0][0] && !brk_;\
-						argv[0]++) {\
-					if (argv_ != argv)\
-						break;\
-					argc_ = argv[0][0];\
-					switch (argc_)
-
-/* Handles obsolete -NUM syntax */
-#define ARGNUM				case '0':\
-					case '1':\
-					case '2':\
-					case '3':\
-					case '4':\
-					case '5':\
-					case '6':\
-					case '7':\
-					case '8':\
-					case '9'
-
-#define ARGEND			}\
-			}
-
-#define ARGC()		argc_
-
-#define ARGNUMF()	(brk_ = 1, estrtonum(argv[0], 0, INT_MAX))
-
-#define EARGF(x)	((argv[0][1] == '\0' && argv[1] == NULL)?\
-				((x), abort(), (char *)0) :\
-				(brk_ = 1, (argv[0][1] != '\0')?\
-					(&argv[0][1]) :\
-					(argc--, argv++, argv[0])))
-
-#define ARGF()		((argv[0][1] == '\0' && argv[1] == NULL)?\
-				(char *)0 :\
-				(brk_ = 1, (argv[0][1] != '\0')?\
-					(&argv[0][1]) :\
-					(argc--, argv++, argv[0])))
-
-#define LNGARG()	&argv[0][0]
+/* int main(int argc, char *argv[]) */
+#define ARGBEGIN for (argv0 = *argv, argv++, argc--;                              \
+                      *argv && (*argv)[0] == '-' && (*argv)[1]; argc--, argv++) { \
+                 	int argparsed;                                            \
+                 	if ((*argv)[1] == '-' && (*argv)[2] == '\0') {            \
+                 		argc--, argv++;                                   \
+                 		break;                                            \
+                 	}                                                         \
+                 	for (argparsed = 0, (*argv)++; (*argv)[0]; (*argv)++) {   \
+                 		switch((*argv)[0])
+#define ARGEND   		if (argparsed) {                                  \
+                 			if ((*argv)[1] != '\0') {                 \
+                 				break;                            \
+                 			} else {                                  \
+                 				argc--, argv++;                   \
+                 				break;                            \
+                 			}                                         \
+                 		}                                                 \
+                 	}                                                         \
+                 }
+#define ARGC()   *argv[0]
+#define ARGF_(x) (((*argv)[1] == '\0' && !*(argv + 1)) ?       \
+                 	(x) :                                  \
+                 	(argparsed = 1, ((*argv)[1] != '\0') ? \
+                 		(&(*argv)[1]) :                \
+                 		(*(argv + 1))                  \
+                 	)                                      \
+                 )
+#define EARGF(x) ARGF_(((x), exit(1), (char *)0))
+#define ARGF()   ARGF_((char *)0)
 
 #endif
