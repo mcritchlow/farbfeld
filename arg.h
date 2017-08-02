@@ -22,7 +22,7 @@
 extern char *argv0;
 
 /* int main(int argc, char *argv[]) */
-#define ARGBEGIN for (argv0 = *argv, argv++, argc--;                              \
+#define ARGBEGIN for (argv0 = *argv, argc--, argv++;                              \
                       *argv && (*argv)[0] == '-' && (*argv)[1]; argc--, argv++) { \
                  	int argparsed;                                            \
                  	if ((*argv)[1] == '-' && (*argv)[2] == '\0') {            \
