@@ -1,15 +1,15 @@
 ISC-License
 
-(c) 2014-2017 Laslo Hunhold <dev@frign.de>
+Copyright 2014-2017 Laslo Hunhold <dev@frign.de>
 
-(c) 2004 Ted Unangst <tedu@openbsd.org>
-(c) 2004 Todd C. Miller <Todd.Miller@courtesan.com>
-(c) 2008 Otto Moerbeek <otto@drijf.net>
-(c) 2014-2015 Dimitris Papastamos <sin@2f30.org>
-(c) 2014-2016 Hiltjo Posthuma <hiltjo@codemadness.org>
-(c) 2015 Willy Goiffon <willy@mailoo.org>
-(c) 2016 Alexander Krotov <ilabdsf@yandex.ru>
-(c) 2017 Mattias Andrée <maandree@kth.se>
+Copyright 2004 Ted Unangst <tedu@openbsd.org>
+Copyright 2004 Todd C. Miller <Todd.Miller@courtesan.com>
+Copyright 2008 Otto Moerbeek <otto@drijf.net>
+Copyright 2014-2015 Dimitris Papastamos <sin@2f30.org>
+Copyright 2014-2016 Hiltjo Posthuma <hiltjo@codemadness.org>
+Copyright 2015 Willy Goiffon <willy@mailoo.org>
+Copyright 2016 Alexander Krotov <ilabdsf@yandex.ru>
+Copyright 2017 Mattias Andrée <maandree@kth.se>
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above

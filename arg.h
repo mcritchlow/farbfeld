@@ -1,7 +1,7 @@
 /*
  * ISC-License
  *
- * (c) 2017 Laslo Hunhold <dev@frign.de>
+ * Copyright 2017 Laslo Hunhold <dev@frign.de>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
