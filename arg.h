@@ -24,15 +24,15 @@ extern char *argv0;
 /* int main(int argc, char *argv[]) */
 #define ARGBEGIN for (argv0 = *argv, *argv ? (argc--, argv++) : ((void *)0);      \
                       *argv && (*argv)[0] == '-' && (*argv)[1]; argc--, argv++) { \
-                 	int argused;                                              \
-                 	if ((*argv)[1] == '-' && (*argv)[2] == '\0') {            \
+                 	int i, argused;                                           \
+                 	if ((*argv)[1] == '-' && !(*argv)[2]) {                   \
                  		argc--, argv++;                                   \
                  		break;                                            \
                  	}                                                         \
-                 	for (argused = 0, (*argv)++; (*argv)[0]; (*argv)++) {     \
-                 		switch((*argv)[0])
+                 	for (i = 1, argused = 0; (*argv)[i]; i++) {               \
+                 		switch((*argv)[i])
 #define ARGEND   		if (argused) {                                    \
-                 			if ((*argv)[1] != '\0') {                 \
+                 			if ((*argv)[i + 1]) {                     \
                  				break;                            \
                  			} else {                                  \
                  				argc--, argv++;                   \
@@ -41,13 +41,13 @@ extern char *argv0;
                  		}                                                 \
                  	}                                                         \
                  }
-#define ARGC()   *argv[0]
-#define ARGF_(x) (((*argv)[1] == '\0' && !*(argv + 1)) ?       \
-                 	(x) :                                  \
-                 	(argused = 1, ((*argv)[1] != '\0') ? \
-                 		(&(*argv)[1]) :                \
-                 		(*(argv + 1))                  \
-                 	)                                      \
+#define ARGC()   (*argv)[i]
+#define ARGF_(x) ((!(*argv)[i + 1] && !*(argv + 1)) ?    \
+                 	(x) :                            \
+                 	(argused = 1, ((*argv)[i + 1]) ? \
+                 		(&(*argv)[i + 1]) :      \
+                 		(*(argv + 1))            \
+                 	)                                \
                  )
 #define EARGF(x) ARGF_(((x), exit(1), (char *)0))
 #define ARGF()   ARGF_((char *)0)
