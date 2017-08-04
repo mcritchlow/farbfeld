@@ -41,9 +41,8 @@ extern char *argv0;
                  	}                                                         \
                  }
 #define ARGC()   ((*argv)[_i])
-#define ARGF_(x) (((*argv)[_i + 1]) ? (_argused = 1, &((*argv)[_i + 1])) :     \
-                  (*(argv + 1))     ? (_argused = 1, *(argv + 1))        : (x) \
-                 )
+#define ARGF_(x) (((*argv)[_i + 1]) ? (_argused = 1, &((*argv)[_i + 1])) :        \
+                  (*(argv + 1))     ? (_argused = 1, *(argv + 1))        : (x))
 #define EARGF(x) ARGF_(((x), exit(1), (char *)0))
 #define ARGF()   ARGF_((char *)0)
 
