@@ -23,15 +23,15 @@ extern char *argv0;
 /* int main(int argc, char *argv[]) */
 #define ARGBEGIN for (argv0 = *argv, *argv ? (argc--, argv++) : ((void *)0);      \
                       *argv && (*argv)[0] == '-' && (*argv)[1]; argc--, argv++) { \
-                 	int _i, _argused;                                         \
+                 	int i_, argused_;                                         \
                  	if ((*argv)[1] == '-' && !(*argv)[2]) {                   \
                  		argc--, argv++;                                   \
                  		break;                                            \
                  	}                                                         \
-                 	for (_i = 1, _argused = 0; (*argv)[_i]; _i++) {           \
-                 		switch((*argv)[_i])
-#define ARGEND   		if (_argused) {                                   \
-                 			if ((*argv)[_i + 1]) {                    \
+                 	for (i_ = 1, argused_ = 0; (*argv)[i_]; i_++) {           \
+                 		switch((*argv)[i_])
+#define ARGEND   		if (argused_) {                                   \
+                 			if ((*argv)[i_ + 1]) {                    \
                  				break;                            \
                  			} else {                                  \
                  				argc--, argv++;                   \
@@ -40,9 +40,9 @@ extern char *argv0;
                  		}                                                 \
                  	}                                                         \
                  }
-#define ARGC()   ((*argv)[_i])
-#define ARGF_(x) (((*argv)[_i + 1]) ? (_argused = 1, &((*argv)[_i + 1])) :        \
-                  (*(argv + 1))     ? (_argused = 1, *(argv + 1))        : (x))
+#define ARGC()   ((*argv)[i_])
+#define ARGF_(x) (((*argv)[i_ + 1]) ? (argused_ = 1, &((*argv)[i_ + 1])) :        \
+                  (*(argv + 1))     ? (argused_ = 1, *(argv + 1))        : (x))
 #define EARGF(x) ARGF_(((x), exit(1), (char *)0))
 #define ARGF()   ARGF_((char *)0)
 
