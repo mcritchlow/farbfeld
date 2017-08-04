@@ -24,14 +24,14 @@ extern char *argv0;
 /* int main(int argc, char *argv[]) */
 #define ARGBEGIN for (argv0 = *argv, *argv ? (argc--, argv++) : ((void *)0);      \
                       *argv && (*argv)[0] == '-' && (*argv)[1]; argc--, argv++) { \
-                 	int argparsed;                                            \
+                 	int argused;                                              \
                  	if ((*argv)[1] == '-' && (*argv)[2] == '\0') {            \
                  		argc--, argv++;                                   \
                  		break;                                            \
                  	}                                                         \
-                 	for (argparsed = 0, (*argv)++; (*argv)[0]; (*argv)++) {   \
+                 	for (argused = 0, (*argv)++; (*argv)[0]; (*argv)++) {     \
                  		switch((*argv)[0])
-#define ARGEND   		if (argparsed) {                                  \
+#define ARGEND   		if (argused) {                                    \
                  			if ((*argv)[1] != '\0') {                 \
                  				break;                            \
                  			} else {                                  \
@@ -44,7 +44,7 @@ extern char *argv0;
 #define ARGC()   *argv[0]
 #define ARGF_(x) (((*argv)[1] == '\0' && !*(argv + 1)) ?       \
                  	(x) :                                  \
-                 	(argparsed = 1, ((*argv)[1] != '\0') ? \
+                 	(argused = 1, ((*argv)[1] != '\0') ? \
                  		(&(*argv)[1]) :                \
                  		(*(argv + 1))                  \
                  	)                                      \
