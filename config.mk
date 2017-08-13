@@ -5,7 +5,7 @@ VERSION = 3
 
 # paths
 PREFIX = /usr/local
-MANPREFIX = $(PREFIX)/man
+MANPREFIX = $(PREFIX)/share/man
 
 # flags
 CPPFLAGS = -D_DEFAULT_SOURCE
