@@ -1,0 +1,15 @@
+ff2jpg
+ff2jpg.o
+ff2pam
+ff2pam.o
+ff2png
+ff2png.o
+ff2ppm
+ff2ppm.o
+jpg2ff
+jpg2ff.o
+png2ff
+png2ff.o
+util.o
+*.o
+
