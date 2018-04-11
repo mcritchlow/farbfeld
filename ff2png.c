@@ -68,14 +68,7 @@ main(int argc, char *argv[])
 
 	/* write data */
 	for (i = 0; i < height; ++i) {
-		if (fread(row, sizeof(uint16_t), rowlen, stdin) != rowlen) {
-			if (ferror(stdin)) {
-				fprintf(stderr, "%s: fread: %s\n", argv0, strerror(errno));
-			} else {
-				fprintf(stderr, "%s: unexpected end of file\n", argv0);
-			}
-			return 1;
-		}
+		efread(row, sizeof(uint16_t), rowlen, stdin);
 		png_write_row(pngs, (uint8_t *)row);
 	}
 

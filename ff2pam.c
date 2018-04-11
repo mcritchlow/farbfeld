@@ -48,18 +48,8 @@ main(int argc, char *argv[])
 	       width, height);
 
 	for (i = 0; i < height; i++) {
-		if (fread(row, sizeof(uint16_t), rowlen, stdin) != rowlen) {
-			if (ferror(stdin)) {
-				fprintf(stderr, "%s: fread: %s\n", argv0, strerror(errno));
-			} else {
-				fprintf(stderr, "%s: unexpected end of file\n", argv0);
-			}
-			return 1;
-		}
-		if (fwrite(row, sizeof(uint16_t), rowlen, stdout) != rowlen) {
-			fprintf(stderr, "%s: fwrite: %s\n", argv0, strerror(errno));
-			return 1;
-		}
+		efread(row, sizeof(uint16_t), rowlen, stdin);
+		efwrite(row, sizeof(uint16_t), rowlen, stdout);
 	}
 
 	return fshut(stdout, "<stdout>");

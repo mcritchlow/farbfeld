@@ -80,10 +80,7 @@ main(int argc, char *argv[])
 			row[4 * i + 3] = htons(65535);
 		}
 
-		if (fwrite(row, sizeof(uint16_t), rowlen, stdout) != rowlen) {
-			fprintf(stderr, "%s: fwrite: %s\n", argv0, strerror(errno));
-			return 1;
-		}
+		efwrite(row, sizeof(uint16_t), rowlen, stdout);
 	}
 
 	/* clean up */

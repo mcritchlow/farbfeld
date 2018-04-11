@@ -13,6 +13,9 @@ int parse_mask(const char *, uint16_t mask[3]);
 
 int fshut(FILE *, const char *);
 
+void efread(void *, size_t, size_t, FILE *);
+void efwrite(const void *, size_t, size_t, FILE *);
+
 #undef reallocarray
 void *reallocarray(void *, size_t, size_t);
 void *ereallocarray(void *optr, size_t nmemb, size_t size);

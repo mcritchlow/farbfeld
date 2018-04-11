@@ -53,16 +53,8 @@ main(int argc, char *argv[])
 	printf("P6\n%" PRIu32 " %" PRIu32 "\n255\n", width, height);
 
 	for (i = 0; i < height; ++i) {
-		if (fread(row, sizeof(uint16_t), rowlen, stdin) != rowlen) {
-			if (ferror(stdin)) {
-				fprintf(stderr, "%s: fread: %s\n", argv0,
-				        strerror(errno));
-			} else {
-				fprintf(stderr, "%s: unexpected end of file\n",
-				        argv0);
-			}
-			return 1;
-		}
+		efread(row, sizeof(uint16_t), rowlen, stdin);
+
 		for (j = 0, k = 0; j < rowlen; j += 4, k += 3) {
 			a = ntohs(row[j + 3]);
 			for (l = 0; l < 3; l++) {
@@ -73,10 +65,8 @@ main(int argc, char *argv[])
 						 (UINT16_MAX / UINT8_MAX));
 			}
 		}
-		if (fwrite(rowout, sizeof(uint8_t), rowoutlen, stdout) != rowoutlen) {
-			fprintf(stderr, "%s: fwrite: %s\n", argv0, strerror(errno));
-			return 1;
-		}
+
+		efwrite(rowout, sizeof(uint8_t), rowoutlen, stdout);
 	}
 
 	return fshut(stdout, "<stdout>");

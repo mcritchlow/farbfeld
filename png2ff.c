@@ -81,22 +81,12 @@ main(int argc, char *argv[])
 			for (i = 0; i < rowlen; i++) {
 				row[i] = htons(257 * pngrows[r][i]);
 			}
-			if (fwrite(row, sizeof(uint16_t), rowlen,
-			           stdout) != rowlen) {
-				fprintf(stderr, "%s: fwrite: %s\n", argv0,
-				        strerror(errno));
-				return 1;
-			}
+			efwrite(row, sizeof(uint16_t), rowlen, stdout);
 		}
 		break;
 	case 16:
 		for (r = 0; r < height; ++r) {
-			if (fwrite(pngrows[r], sizeof(uint16_t), rowlen,
-			           stdout) != rowlen) {
-				fprintf(stderr, "%s: fwrite: %s\n", argv0,
-				        strerror(errno));
-				return 1;
-			}
+			efwrite(pngrows[r], sizeof(uint16_t), rowlen, stdout);
 		}
 		break;
 	default:
