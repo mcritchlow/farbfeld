@@ -47,8 +47,7 @@ jpeg_setup_writer(struct jpeg_compress_struct *s, struct jpeg_error_mgr *e,
 static void
 usage(void)
 {
-	fprintf(stderr, "usage: %s [-b colour] [-o] [-q quality]\n", argv0);
-	exit(1);
+	die("usage: %s [-b colour] [-o] [-q quality]", argv0);
 }
 
 int

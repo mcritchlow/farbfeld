@@ -2,9 +2,12 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#define LEN(x) (sizeof (x) / sizeof *(x))
+
 extern char *argv0;
 
-#define LEN(x) (sizeof (x) / sizeof *(x))
+void warn(const char *, ...);
+void die(const char *, ...);
 
 void ff_read_header(uint32_t *width, uint32_t *height);
 void ff_write_header(uint32_t width, uint32_t height);

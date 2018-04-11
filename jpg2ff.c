@@ -40,8 +40,7 @@ jpeg_setup_reader(struct jpeg_decompress_struct *s, struct jpeg_error_mgr *e,
 static void
 usage(void)
 {
-	fprintf(stderr, "usage: %s\n", argv0);
-	exit(1);
+	die("usage: %s", argv0);
 }
 
 int

@@ -15,8 +15,7 @@ static void
 png_err(png_struct *pngs, const char *msg)
 {
 	(void)pngs;
-	fprintf(stderr, "%s: libpng: %s\n", argv0, msg);
-	exit(1);
+	die("libpng: %s", msg);
 }
 
 static void
@@ -26,8 +25,7 @@ png_setup_reader(png_struct **s, png_info **i, uint32_t *w, uint32_t *h)
 	*i = png_create_info_struct(*s);
 
 	if (!*s || !*i) {
-		fprintf(stderr, "%s: failed to initialize libpng\n", argv0);
-		exit(1);
+		die("Failed to initialize libpng");
 	}
 
 	png_init_io(*s, stdin);
@@ -46,8 +44,7 @@ png_setup_reader(png_struct **s, png_info **i, uint32_t *w, uint32_t *h)
 static void
 usage(void)
 {
-	fprintf(stderr, "usage: %s\n", argv0);
-	exit(1);
+	die("usage: %s", argv0);
 }
 
 int
@@ -90,8 +87,7 @@ main(int argc, char *argv[])
 		}
 		break;
 	default:
-		fprintf(stderr, "%s: invalid bit-depth\n", argv0);
-		return 1;
+		die("Invalid bit-depth");
 	}
 
 	/* clean up */

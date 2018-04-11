@@ -3,6 +3,7 @@
 
 #include <errno.h>
 #include <limits.h>
+#include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +14,45 @@
 
 char *argv0;
 
+static void
+verr(const char *fmt, va_list ap)
+{
+	if (argv0 && strncmp(fmt, "usage", sizeof("usage") - 1)) {
+		fprintf(stderr, "%s: ", argv0);
+	}
+
+	vfprintf(stderr, fmt, ap);
+
+	if (fmt[0] && fmt[strlen(fmt) - 1] == ':') {
+		fputc(' ', stderr);
+		perror(NULL);
+	} else {
+		fputc('\n', stderr);
+	}
+}
+
+void
+warn(const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	verr(fmt, ap);
+	va_end(ap);
+}
+
+void
+die(const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	verr(fmt, ap);
+	va_end(ap);
+
+	exit(1);
+}
+
 void
 ff_read_header(uint32_t *width, uint32_t *height)
 {
@@ -21,8 +61,7 @@ ff_read_header(uint32_t *width, uint32_t *height)
 	efread(hdr, sizeof(*hdr), LEN(hdr), stdin);
 
 	if (memcmp("farbfeld", hdr, sizeof("farbfeld") - 1)) {
-		fprintf(stderr, "%s: Invalid magic value\n", argv0);
-		exit(1);
+		die("Invalid magic value");
 	}
 
 	*width = ntohl(hdr[2]);
@@ -84,14 +123,12 @@ fshut(FILE *fp, const char *fname)
 	fflush(fp);
 
 	if (ferror(fp) && !ret) {
-		fprintf(stderr, "%s: ferror '%s': %s\n", argv0, fname,
-		        strerror(errno));
+		warn("ferror '%s':", fname);
 		ret = 1;
 	}
 
 	if (fclose(fp) && !ret) {
-		fprintf(stderr, "%s: fclose '%s': %s\n", argv0, fname,
-		        strerror(errno));
+		warn("fclose '%s':", fname);
 		ret = 1;
 	}
 
@@ -103,13 +140,10 @@ efread(void *p, size_t s, size_t n, FILE *f)
 {
 	if (fread(p, s, n, f) != n) {
 		if (ferror(f)) {
-			fprintf(stderr, "%s: fread: %s\n", argv0,
-			        strerror(errno));
+			die("fread:");
 		} else {
-			fprintf(stderr, "%s: fread: Unexpected end of file\n",
-			        argv0);
+			die("fread: Unexpected end of file");
 		}
-		exit(1);
 	}
 }
 
@@ -117,8 +151,7 @@ void
 efwrite(const void *p, size_t s, size_t n, FILE *f)
 {
 	if (fwrite(p, s, n, f) != n) {
-		fprintf(stderr, "%s: fwrite: %s\n", argv0, strerror(errno));
-		exit(1);
+		die("fwrite:");
 	}
 }
 
@@ -128,8 +161,7 @@ ereallocarray(void *optr, size_t nmemb, size_t size)
 	void *p;
 
 	if (!(p = reallocarray(optr, nmemb, size))) {
-		fprintf(stderr, "%s: reallocarray: Out of memory\n", argv0);
-		exit(1);
+		die("reallocarray: Out of memory");
 	}
 
 	return p;
@@ -143,8 +175,7 @@ estrtonum(const char *numstr, long long minval, long long maxval)
 
 	ll = strtonum(numstr, minval, maxval, &errstr);
 	if (errstr) {
-		fprintf(stderr, "%s: strtonum '%s': %s\n", argv0, numstr, errstr);
-		exit(1);
+		die("strtonum '%s': %s", numstr, errstr);
 	}
 
 	return ll;
